@@ -1,5 +1,7 @@
 package aoc2022
 
-@main def helloWorld = println ("hello world")
+@main def part1 =
+  val grid = Grid.fromPoints(Seq(Point(1,1), Point(2,2)))
+  Grid.printBooleanGrid(grid)
 
-@main def helloWorld2 = println ("hello world 2")
+@main def part2 = println ("hello world 2")

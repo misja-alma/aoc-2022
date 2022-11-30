@@ -24,10 +24,9 @@ package object aoc2022 {
 
   object Point {
     def apply(s: String): Point =
-      s match {
+      s match
         case s"$x,$y" => Point(x.toInt, y.toInt)
         case _ => sys.error("Cant parse Point: " + s)
-      }
 
     def manhattanDistance(p1: Point, p2: Point): Int = Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y)
   }
@@ -56,23 +55,19 @@ package object aoc2022 {
       val allFilled = grid.allPoints.filter { p => grid.value(p) }
       val maxX = allFilled.maxBy(_.x).x
       val maxY = allFilled.maxBy(_.y).y
-      (0 to maxY).foreach { row =>
-        (0 to maxX).foreach { col =>
-          if (grid.value(Point(col, row))) print('#') else print('.')
-        }
+      for row <- 0 to maxY do
+        for col <- 0 to maxX do
+          if grid.value(Point(col, row)) then print('#') else print('.')
         println()
-      }
     }
 
     def printGrid(grid: Grid[Char]): Unit = {
       val maxX = grid.width
       val maxY = grid.height
-      (0 until maxY).foreach { y =>
-        (0 until maxX).foreach { x =>
+      for y <- 0 until maxY do
+        for x <- 0 until maxX do
           print(grid.value(Point(x, y)))
-        }
         println()
-      }
     }
   }
 
@@ -128,7 +123,7 @@ package object aoc2022 {
     }
 
     override def equals(o2: Any): Boolean = {
-      if (!o2.isInstanceOf[Grid[T]]) false else {
+      if !o2.isInstanceOf[Grid[T]] then false else {
         val grid2 = o2.asInstanceOf[Grid[T]]
         width == grid2.width && height == grid2.height &&
           allPoints.forall { pt => value(pt) == grid2.value(pt) }
@@ -154,6 +149,9 @@ package object aoc2022 {
     }
   }
 
+  /**
+   * Inclusive on both sides
+   */
   case class Interval(min: Int, max: Int) {
     def contains(x: Int): Boolean = x >= min && x <= max
 
