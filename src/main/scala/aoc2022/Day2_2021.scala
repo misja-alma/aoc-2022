@@ -4,7 +4,7 @@ import cats.implicits._
 
 case class Position(forward: Int, aim: Int, depth: Int)
 
-object Day2Part1 extends App {
+object Day22021Part1 extends App {
   val forward = """forward (\d*)""".r
   val up = """up (\d*)""".r
   val down = """down (\d*)""".r
