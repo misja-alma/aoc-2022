@@ -6,7 +6,8 @@ object Day1Part12 extends App {
   val sc = scannerFromResource("/day1.txt")
   val lines = scannerToLines(sc)
 
-  val (food, _) = lines.foldLeft((Seq[Seq[Int]](), Seq[Int]())) {
+  val startState = (Seq[Seq[Int]](), Seq[Int]())
+  val (food, _) = lines.foldLeft(startState) {
     case ((allFoods, elfFood), line) =>
       if line.trim.isEmpty then
         (allFoods :+ elfFood, Seq[Int]())
