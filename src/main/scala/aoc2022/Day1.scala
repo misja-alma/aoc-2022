@@ -7,8 +7,8 @@ object Day1Part12 extends App {
   val lines = scannerToLines(sc)
 
   val startState = (Seq[Seq[Int]](), Seq[Int]())
-  val (food, _) = lines.foldLeft(startState) {
-    case ((allFoods, elfFood), line) =>
+  val (food, _) = lines.foldLeft(startState) { (state, line) =>
+      val (allFoods, elfFood) = state
       if line.trim.isEmpty then
         (allFoods :+ elfFood, Seq[Int]())
       else
