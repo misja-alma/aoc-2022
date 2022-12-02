@@ -1,6 +1,5 @@
 package aoc2022
 
-import collection._
 
 enum RPS:
   def value: Int = this.ordinal + 1
@@ -8,6 +7,7 @@ enum RPS:
   case Rock extends RPS
   case Paper extends RPS
   case Scissors extends RPS
+
 
 object Day2Part1 extends App {
   import RPS._
