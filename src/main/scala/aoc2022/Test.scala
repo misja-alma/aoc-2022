@@ -7,11 +7,15 @@ package aoc2022
   Grid.printGrid(grid)
   val cheapest = Search.findCheapestPath(grid, Point(0, 0), Point(2, 2))
   println(cheapest)
+  Grid.printGridWithPath(grid, cheapest.get.reverseSteps)
 
 @main def testShortestPath =
-  val grid = Grid.withDimensions(3, 3, initialValue = false)
-  grid.update(Point(1, 1), true)
-  grid.update(Point(2, 1), true)
+  val (grid, start, end) = Grid.createMaze(30, 30)
   Grid.printBooleanGrid(grid, cutEmptySpace = false)
-  val shortest = Search.findShortestPath(grid, Point(0, 0), _ == Point(2, 2))
-  println(shortest)
+  println()
+  val shortest = Search.findShortestPath(grid, start, _ == end)
+  Grid.printBooleanGridWithPath(grid, shortest.get, cutEmptySpace = false)
+
+@main def maze =
+  val (grid, start, end) = Grid.createMaze(30, 30)
+  Grid.printBooleanGrid(grid, cutEmptySpace = false)
