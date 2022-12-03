@@ -1,1 +1,1 @@
-Solutions for Advent of Code 2022
+Solutions in Scala 3 for Advent of Code 2022 

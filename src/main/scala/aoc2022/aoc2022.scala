@@ -22,7 +22,9 @@ def scannerToLines(sc: Scanner): Seq[String] = {
 }
 
 
-case class Point(x: Int, y: Int)
+case class Point(x: Int, y: Int) {
+  override def toString: String = s"($x,$y)"
+}
 
 object Point {
   def apply(s: String): Point =
@@ -37,6 +39,8 @@ case class Pos3D(x: Int, y: Int, z: Int) {
   def +(pos2: Pos3D): Pos3D = Pos3D(x + pos2.x, y + pos2.y, z + pos2.z)
 
   def -(pos2: Pos3D): Pos3D = Pos3D(x - pos2.x, y - pos2.y, z - pos2.z)
+
+  override def toString: String = s"($x,$y,$z)"
 }
 
 object Grid {
@@ -53,17 +57,20 @@ object Grid {
     grid
   }
 
-  def printBooleanGrid(grid: Grid[Boolean]): Unit = {
-    val allFilled = grid.allPoints.filter { p => grid.value(p) }
-    val maxX = allFilled.maxBy(_.x).x
-    val maxY = allFilled.maxBy(_.y).y
+  def printBooleanGrid(grid: Grid[Boolean], cutEmptySpace: Boolean = true): Unit = {
+    val (maxX, maxY) = if cutEmptySpace then
+      val allFilled = grid.allPoints.filter { p => grid.value(p) }
+      (allFilled.maxBy(_.x).x, allFilled.maxBy(_.y).y)
+    else
+      (grid.width - 1, grid.height - 1)
+
     for row <- 0 to maxY do
       for col <- 0 to maxX do
         if grid.value(Point(col, row)) then print('#') else print('.')
       println()
   }
 
-  def printGrid(grid: Grid[Char]): Unit = {
+  def printGrid(grid: Grid[?]): Unit = {
     val maxX = grid.width
     val maxY = grid.height
     for y <- 0 until maxY do
