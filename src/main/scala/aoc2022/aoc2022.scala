@@ -278,6 +278,9 @@ implicit class FrequencyMapOps[T](map: FrequencyMap[T]) {
  */
 case class Interval(min: Int, max: Int) {
   def contains(x: Int): Boolean = x >= min && x <= max
+  
+  def contains(i2: Interval): Boolean =
+    contains(i2.min) && contains(i2.max)
 
   def size: Int = max - min + 1
 
