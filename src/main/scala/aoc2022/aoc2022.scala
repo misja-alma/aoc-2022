@@ -273,24 +273,67 @@ implicit class FrequencyMapOps[T](map: FrequencyMap[T]) {
   }
 }
 
+trait IInterval {
+  def contains(x: Int): Boolean
+
+  def contains(i2: IInterval): Boolean
+
+  def size: Int
+
+  def intersect(i2: IInterval): IInterval
+
+  def union(i2: IInterval): IInterval
+
+  def isEmpty: Boolean = size == 0
+  
+  def nonEmpty: Boolean = size > 0
+}
+
+case object EmptyInterval extends IInterval {
+
+  override def contains(x: Int): Boolean = false
+
+  override def contains(i2: IInterval): Boolean = false
+
+  override def size: Int = 0
+
+  override def intersect(i2: IInterval): IInterval = this
+
+  override def union(i2: IInterval): IInterval = i2
+}
+
 /**
  * Inclusive on both sides
  */
-case class Interval(min: Int, max: Int) {
-  def contains(x: Int): Boolean = x >= min && x <= max
-  
-  def contains(i2: Interval): Boolean =
-    contains(i2.min) && contains(i2.max)
+case class Interval(min: Int, max: Int) extends IInterval {
+  assert(min <= max, s"Interval.min $min > Interval.max $max")
 
-  def size: Int = max - min + 1
+  override def contains(x: Int): Boolean = x >= min && x <= max
 
-  def intersect(i2: Interval): Option[Interval] = {
-    if min <= i2.min && max >= i2.min then
-      Some(Interval(i2.min, Math.min(max, i2.max)))
-    else if min <= i2.max && min >= i2.min then
-      Some(Interval(min, Math.min(max, i2.max)))
-    else
-      None
+  override def contains(i2: IInterval): Boolean =  i2 match {
+    case EmptyInterval => true
+    case Interval(min2, max2) => contains(min2) && contains(max2)
+  }
+
+  override def size: Int = max - min + 1
+
+  override def intersect(i2: IInterval): IInterval = i2 match {
+    case EmptyInterval => EmptyInterval
+
+    case Interval(min2, max2) =>  
+      if min <= min2 && max >= min2 then
+        Interval(min2, Math.min(max, max2))
+      else if min <= max2 && min >= min2 then
+        Interval(min, Math.min(max, max2))
+      else
+        EmptyInterval
+  }
+
+  override def union(i2: IInterval): IInterval = i2 match {
+    case EmptyInterval => this
+
+    case Interval(min2, max2) =>
+      Interval(Math.min(min, min2), Math.max(max, max2))
   }
 }
 
