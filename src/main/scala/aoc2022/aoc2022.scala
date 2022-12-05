@@ -50,6 +50,8 @@ trait Graph[E, V] {
   def value(edge: E): V
 }
 
+val blockChar = 0x2588.toChar
+
 object Grid {
   def withDimensions[T: ClassTag](x: Int, y: Int, initialValue: T): Grid[T] = {
     val ar = (0 until y).map(_ => Array.fill[T](x)(initialValue)).toArray
@@ -73,7 +75,7 @@ object Grid {
 
     for row <- 0 to maxY do
       for col <- 0 to maxX do
-        if grid.value(Point(col, row)) then print('#') else print('.')
+        if grid.value(Point(col, row)) then print(blockChar) else print('.')
       println()
   }
 
@@ -89,7 +91,7 @@ object Grid {
     for row <- 0 to maxY do
       for col <- 0 to maxX do
         val pt = Point(col, row)
-        val toPrint = if points.contains(pt) then 'O' else if grid.value(pt) then '#' else '.'
+        val toPrint = if points.contains(pt) then 'O' else if grid.value(pt) then blockChar else '.'
         print(toPrint)
       println()
   }
@@ -320,13 +322,9 @@ case class Interval(min: Int, max: Int) extends IInterval {
   override def intersect(i2: IInterval): IInterval = i2 match {
     case EmptyInterval => EmptyInterval
 
-    case Interval(min2, max2) =>  
-      if min <= min2 && max >= min2 then
-        Interval(min2, Math.min(max, max2))
-      else if min <= max2 && min >= min2 then
-        Interval(min, Math.min(max, max2))
-      else
-        EmptyInterval
+    case Interval(min2, max2) =>
+      val (imin, imax) = (Math.max(min, min2), Math.min(max, max2))
+      if imin <= imax then Interval(imin, imax) else EmptyInterval
   }
 
   override def union(i2: IInterval): IInterval = i2 match {

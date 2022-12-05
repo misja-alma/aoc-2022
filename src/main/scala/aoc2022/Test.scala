@@ -16,6 +16,22 @@ package aoc2022
   val shortest = Search.findShortestPath(grid, start, _ == end)
   Grid.printBooleanGridWithPath(grid, shortest.get, cutEmptySpace = false)
 
-@main def maze =
+@main def testMaze =
   val (grid, start, end) = Grid.createMaze(30, 30)
   Grid.printBooleanGrid(grid, cutEmptySpace = false)
+
+@main def testInterval =
+  val i1 = Interval(1, 5)
+  val i2 = Interval(2, 3)
+  val i3 = Interval(0, 2)
+  val i4 = Interval(4, 6)
+  println (i1.intersect(i2))
+  println (i1.intersect(i3))
+  println (i1.intersect(i4))
+  println (i4.intersect(i1))
+  val i5 = Interval(-1, 1)
+  val i6 = Interval(-1, 6)
+  val i7 = Interval(-5, -4)
+  println (i1.intersect(i5))
+  println (i1.intersect(i6))
+  println (i1.intersect(i7))
