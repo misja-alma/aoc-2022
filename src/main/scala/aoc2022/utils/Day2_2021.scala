@@ -1,11 +1,12 @@
-package aoc2022.solutions
+package aoc2022.utils
 
-import aoc2022.utils._
+import aoc2022.utils.*
 import cats.implicits.*
 
-case class Position(forward: Int, aim: Int, depth: Int)
-
 object Day22021Part1 extends App {
+
+  case class Position(forward: Int, aim: Int, depth: Int)
+
   val forward = """forward (\d*)""".r
   val up = """up (\d*)""".r
   val down = """down (\d*)""".r

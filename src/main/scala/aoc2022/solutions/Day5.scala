@@ -28,7 +28,8 @@ object Day5 {
     newStacks.toList
   }
 
-  object Day5Part1 extends App {
+  @main
+  def day5Part1 = {
 
     def applyMove(ss: List[List[String]], mv: Move): List[List[String]] = {
       val oldFrom = ss(mv.from - 1)
@@ -51,7 +52,8 @@ object Day5 {
     println(solution)
   }
 
-  object Day5Part2 extends App {
+  @main
+  def day5Part2 = {
 
     def applyMove(ss: List[List[String]], mv: Move): List[List[String]] = {
       val oldFrom = ss(mv.from - 1)

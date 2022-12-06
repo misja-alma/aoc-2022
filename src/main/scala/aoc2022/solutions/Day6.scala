@@ -14,12 +14,14 @@ object Day6 {
     market.map(line.indexOf(_) + length)
   }
 
-  object Day6Part1 extends App {
+  @main
+  def day6Part1 = {
     val solution = findMarkerIndex(4)
     println(solution)
   }
 
-  object Day6Part2 extends App {
+  @main
+  def day6Part2 = {
     val solution = findMarkerIndex(14)
     println(solution)
   }
