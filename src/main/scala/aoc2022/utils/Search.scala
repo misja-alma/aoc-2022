@@ -1,8 +1,9 @@
-package aoc2022
+package aoc2022.utils
 
 import scala.collection.mutable
 
 object Search {
+
   case class Path[E](reverseSteps: Seq[E], total: Int, point: E) {
     override def toString: String = s"Total $total: " + reverseSteps.reverse.mkString(" -> ")
   }
@@ -62,20 +63,19 @@ object Search {
     var best = Option.empty[Seq[E]]
 
     while (queue.nonEmpty && best.isEmpty) {
-       val path = queue.dequeue()
-       val point = path.head
-       if stopCondition(point) then best = Some(path)
-       else
-         if !visited.contains(point) then 
-           visited.add(point)
-           val nextCandidates = grid
-             .neighbours(point)
-             .filterNot(visited)
-             .filterNot(grid.value)  // Only consider points with value false
-             .map { pt =>
-               pt +: path
-             }
-           queue.enqueueAll(nextCandidates)
+      val path = queue.dequeue()
+      val point = path.head
+      if stopCondition(point) then best = Some(path)
+      else if !visited.contains(point) then
+        visited.add(point)
+        val nextCandidates = grid
+          .neighbours(point)
+          .filterNot(visited)
+          .filterNot(grid.value) // Only consider points with value false
+          .map { pt =>
+            pt +: path
+          }
+        queue.enqueueAll(nextCandidates)
     }
 
     best.map(_.reverse)

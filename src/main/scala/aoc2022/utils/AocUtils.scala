@@ -1,4 +1,4 @@
-package aoc2022
+package aoc2022.utils
 
 import java.io.InputStream
 import java.util.Scanner

@@ -1,5 +1,6 @@
-package aoc2022
+package aoc2022.solutions
 
+import aoc2022.utils._
 
 object Day4Part1 extends App {
   val sc = scannerFromResource("/day4.txt")

@@ -1,6 +1,7 @@
-package aoc2022
+package aoc2022.solutions
 
-import cats.implicits._
+import aoc2022.utils._
+import cats.implicits.*
 
 case class Position(forward: Int, aim: Int, depth: Int)
 

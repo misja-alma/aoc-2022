@@ -1,4 +1,4 @@
-package aoc2022
+package aoc2022.utils
 
 
 enum Operator:
@@ -67,8 +67,8 @@ def printSolution(path: Seq[CountleState]): Unit = {
 }
 
 object Countle extends App {
-  val startState = CountleState(Seq(75, 100, 50, 25, 4, 6), List())
-  val target = 239
+  val startState = CountleState(Seq(75, 100, 50, 25, 3, 5), List())
+  val target = 567
 
   Search.findShortestPath(CountleGraph, startState, success(target)) match {
     case None => println ("No Solution!")

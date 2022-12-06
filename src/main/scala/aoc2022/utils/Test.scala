@@ -1,4 +1,4 @@
-package aoc2022
+package aoc2022.utils
 
 @main def testCheapestPath =
   val grid = Grid.withDimensions(3, 3, initialValue = 1)

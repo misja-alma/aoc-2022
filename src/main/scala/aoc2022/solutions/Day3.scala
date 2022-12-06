@@ -1,4 +1,6 @@
-package aoc2022
+package aoc2022.solutions
+
+import aoc2022.utils._
 
 def charScore(c: Char): Int =
   if c > 'Z' then c - 'a' + 1 else c - 'A' + 1 + 26

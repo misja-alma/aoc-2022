@@ -1,5 +1,6 @@
-package aoc2022
+package aoc2022.solutions
 
+import aoc2022.utils._
 
 enum RPS:
   def value: Int = this.ordinal + 1
@@ -10,7 +11,7 @@ enum RPS:
 
 
 object Day2Part1 extends App {
-  import RPS._
+  import RPS.*
 
   val sc = scannerFromResource("/day2.txt")
   val lines = scannerToLines(sc)
@@ -52,7 +53,7 @@ object Day2Part1 extends App {
 }
 
 object Day2Part2 extends App {       
-  import RPS._
+  import RPS.*
   
   val sc = scannerFromResource("/day2.txt")
   val lines = scannerToLines(sc)
