@@ -35,3 +35,14 @@ package aoc2022.utils
   println (i1.intersect(i5))
   println (i1.intersect(i6))
   println (i1.intersect(i7))
+
+@main def testFrequencyMap =
+  val map = FrequencyMap[String]()
+  val counts = map.addCount("foo", 2)
+    .addCount("bar", 3)
+    .addCount("foo", 4)
+  println (counts)
+
+@main def testIterate =
+  val powers = iterate[Int](1) { total => total * 2 }
+  println (powers(10))

@@ -76,6 +76,8 @@ object Day2 {
         case (Scissors, 0) => Paper
         case (Scissors, 3) => Scissors
         case (Scissors, 6) => Rock
+
+        case _ => sys.error("Invalid combination: " + (opp, result))
       }
 
       result + me.value

@@ -176,11 +176,17 @@ class Grid[T](grid: Array[Array[T]]) extends Graph[Point, T] {
   def filterValid(pts: Seq[Point]): Seq[Point] =
     pts.filter(p => p.x >= 0 && p.x < grid.head.length && p.y >= 0 && p.y < grid.length)
 
+  /**
+   * Horizontal or vertical neighbours that are in the grid
+   */
   def neighbours(point: Point): Seq[Point] = {
     val raw = Seq(Point(point.x - 1, point.y), Point(point.x, point.y - 1), Point(point.x + 1, point.y), Point(point.x, point.y + 1))
     filterValid(raw)
   }
 
+  /**
+   * Horizontal, vertical or diagonal neighbours in the grid
+   */
   def allNeighbours(point: Point): Seq[Point] = {
     val raw = for {
       px <- point.x - 1 to point.x + 1
@@ -203,7 +209,7 @@ class Grid[T](grid: Array[Array[T]]) extends Graph[Point, T] {
   }
 
   override def equals(o2: Any): Boolean = {
-    if !o2.isInstanceOf[Grid[T]] then false else {
+    if !o2.isInstanceOf[Grid[?]] then false else {
       val grid2 = o2.asInstanceOf[Grid[T]]
       width == grid2.width && height == grid2.height &&
         allPoints.forall { pt => value(pt) == grid2.value(pt) }
