@@ -28,6 +28,8 @@ def iterate[T](start: T)(f: T => T): LazyList[T] = {
   doIterate(start)
 }
 
+// TODO add list.remove, replace
+
 trait Graph[E, V] {
   def neighbours(edge: E): Seq[E]
 
