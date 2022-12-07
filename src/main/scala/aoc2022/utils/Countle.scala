@@ -1,5 +1,7 @@
 package aoc2022.utils
 
+import scala.collection.mutable.ListBuffer
+
 object Countle {
   enum Operator:
     def calculate(i1: Int, i2: Int): Option[Int] = this match
@@ -28,14 +30,9 @@ object Countle {
 
   // game is finished if ints contains target
   // neighbours are all valid combinations of 2 ints + 1 combinator -> result in a new step, 2 ints less from ints + 1 new int added
-  case class CountleState(ints: Seq[Int], reverseSteps: List[Step])
+  case class CountleState(ints: ListBuffer[Int], reverseSteps: List[Step])
 
   object CountleGraph extends Graph[CountleState, Boolean] {
-    // TODO not optimal, could be done in one pass e.g. with a fold or recurse
-    def remove[T](ts: Seq[T], t: T): Seq[T] =
-      val before = ts.takeWhile(_ != t)
-      val after = ts.drop(before.size + 1)
-      before ++ after
 
     def neighbours(edge: CountleState): Seq[CountleState] =
       // take all unique ordered pairs of 2 out of ints
@@ -53,7 +50,10 @@ object Countle {
       }.distinct
 
       validSteps.map { case (result, s) =>
-        val newInts = result +: remove(remove(edge.ints, s.int1), s.int2)
+        val newInts = edge.ints.clone()
+        newInts -= s.int1
+        newInts -= s.int2
+        newInts.addOne(result)
         CountleState(newInts, s +: edge.reverseSteps)
       }.toSeq
 
@@ -70,7 +70,7 @@ object Countle {
 
   @main
   def solve = {
-    val startState = CountleState(Seq(75, 100, 50, 25, 4, 4), List())
+    val startState = CountleState(ListBuffer(75, 100, 50, 25, 4, 4), List())
     val target = 476
 
     Search.findShortestPath(CountleGraph, startState, success(target)) match {

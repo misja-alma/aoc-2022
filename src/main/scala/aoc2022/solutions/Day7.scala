@@ -15,7 +15,7 @@ object Day7 {
   case class Directory(name: String) extends Output
 
   val cdroot = """\$ cd /$""".r
-  val cdup = """\$ cd [.][.]$""".r  // NOTE: double escaping the dots doesn't work for some reason ..
+  val cdup = """\$ cd \.\.$""".r  // NOTE: we need only single backslashes to escape because we are already within triple quotes
   val cdrel= """\$ cd ([a-zA-Z\.]+)$""".r
   val ls = """\$ ls$""".r
   val file = """(\d+) ([a-zA-Z\.]+)$""".r
@@ -31,6 +31,7 @@ object Day7 {
     case _ => sys.error(s"Cant parse: $s")
   }
 
+  // NOTE: Don't try to print this, it will throw a StackOverflow .. Reason is the cyclic dependency parent - child
   case class DirGraph(name: String, size: Long, var children: Seq[DirGraph], parent: Option[DirGraph], isDir: Boolean)
 
   def findRootDir(graph: DirGraph): DirGraph =

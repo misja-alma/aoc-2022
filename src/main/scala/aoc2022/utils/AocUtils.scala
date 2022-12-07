@@ -2,8 +2,7 @@ package aoc2022.utils
 
 import java.io.InputStream
 import java.util.Scanner
-import scala.collection.mutable.ArrayBuffer
-import java.io.InputStream
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import java.util.Scanner
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
@@ -27,8 +26,6 @@ def iterate[T](start: T)(f: T => T): LazyList[T] = {
 
   doIterate(start)
 }
-
-// TODO add list.remove, replace
 
 trait Graph[E, V] {
   def neighbours(edge: E): Seq[E]
