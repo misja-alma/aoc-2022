@@ -6,85 +6,73 @@ object Day8 {
   val sc = scannerFromResource("/day8.txt")
   val lines = scannerToLines(sc)
   val rows = lines.map{_.trim.map(_.asDigit)}
+  val grid = Grid.fromRows(rows)
+  val cols = grid.columns
 
   @main
   def day8Part1 = {
-    val grid = Grid.withDimensions(rows.size, rows.head.size, false)
+    val visibleGrid = Grid.withDimensions(rows.size, rows.head.size, false)
 
     rows.zipWithIndex.foreach { (line, row) =>
 
       val fromLeft = line.zipWithIndex.foldLeft(-1) { case (highest, (d, col)) =>
-        if d > highest then grid.update(Point(row, col), true)
+        if d > highest then visibleGrid.update(Point(row, col), true)
         if d > highest then d else highest
       }
 
       val fromRight = line.zipWithIndex.reverse.foldLeft(-1) { case (highest, (d, col)) =>
-        if d > highest then grid.update(Point(row, col), true)
+        if d > highest then visibleGrid.update(Point(row, col), true)
         if d > highest then d else highest
       }
 
       fromLeft + fromRight
     }
 
-    (0 until rows.head.size).foreach { col =>
-        val up = (0 until rows.size).foldLeft(-1) { case (highest, row) =>
-          val d = rows(row)(col)
-          if d > highest then grid.update(Point(row, col), true)
-          if d > highest then d else highest
-        }
+    cols.zipWithIndex.foreach { (line, col) =>
 
-        val down = (rows.size - 1 to 0 by -1).foldLeft(-1) { case (highest, row) =>
-          val d = rows(row)(col)
-          if d > highest then grid.update(Point(row, col), true)
-          if d > highest then d else highest
-        }
-
-        up + down
+      val fromUp = line.zipWithIndex.foldLeft(-1) { case (highest, (d, row)) =>
+        if d > highest then visibleGrid.update(Point(row, col), true)
+        if d > highest then d else highest
       }
 
-    val solution = grid.count(_ == true)
+      val fromDown = line.zipWithIndex.reverse.foldLeft(-1) { case (highest, (d, row)) =>
+        if d > highest then visibleGrid.update(Point(row, col), true)
+        if d > highest then d else highest
+      }
+
+      fromUp + fromDown
+    }
+
+    val solution = visibleGrid.count(_ == true)
     println("Solution: " + solution)
   }
 
   @main
   def day8Part2 = {
-    val products = (0 until rows.size).map { row =>
-      (0 until rows.head.size).map { col =>
-        val subj = rows(row)(col)
+    val products = grid.allPoints.map { case point@Point(col, row) =>
+      val subject = grid.value(point)
 
-        var cnt = 0
-        var higher = false
-        for r <- row -1 to 0 by -1 do
-          if !higher then cnt = cnt + 1
-          if (rows(r)(col) >= subj) higher = true
-        val vUpr = cnt
-
-        cnt = 0
-        higher = false
-        for r <- row + 1 until rows.size do
-          if !higher then cnt = cnt + 1
-          if (rows(r)(col) >= subj) higher = true
-        val vDownr = cnt
-
-        cnt = 0
-        higher = false
-        for c <- col - 1 to 0 by - 1 do
-          if !higher then cnt = cnt + 1
-          if (rows(row)(c) >= subj) higher = true
-        val vLeftr = cnt
-
-        cnt = 0
-        higher = false
-        for c <- col + 1 until rows.head.size do
-          if !higher then cnt = cnt + 1
-          if (rows(row)(c) >= subj) higher = true
-        val vRightr = cnt
-
-        vUpr * vDownr * vLeftr * vRightr
+      def countVisible(viewFromSubject: Seq[Point]): Int = {
+        val unBlocked = viewFromSubject.indexWhere(grid.value(_) >= subject)
+        if unBlocked >= 0 then unBlocked + 1 else viewFromSubject.size
       }
+
+      val upPoints = (row - 1 to 0 by -1).map(Point(col, _))
+      val vUp = countVisible(upPoints)
+
+      val downPoints = (row + 1 until grid.height).map(Point(col, _))
+      val vDown = countVisible(downPoints)
+
+      val leftPoints = (col - 1 to 0 by -1).map(Point(_, row))
+      val vLeft = countVisible(leftPoints)
+
+      val rightPoints = (col + 1 until grid.width).map(Point(_, row))
+      val vRight = countVisible(rightPoints)
+
+      vUp * vDown * vLeft * vRight
     }
 
-    val solution = products.map(_.max).max
+    val solution = products.max
     println ("Solution: " + solution)
   }
 }

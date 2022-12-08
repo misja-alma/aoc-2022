@@ -6,7 +6,10 @@ import scala.util.Random
 object Grid {
   val blockChar = 0x2588.toChar
   
-  
+  def fromRows[T: ClassTag](rows: Seq[Seq[T]]): Grid[T] = {
+    new Grid(rows.map(_.toArray).toArray)
+  }
+
   def withDimensions[T: ClassTag](x: Int, y: Int, initialValue: T): Grid[T] = {
     val ar = (0 until y).map(_ => Array.fill[T](x)(initialValue)).toArray
     new Grid(ar)
@@ -152,7 +155,7 @@ object Grid {
  * @param grid main array contains the rows, subArrays the columns.
  * @tparam T
  */
-class Grid[T](grid: Array[Array[T]]) extends Graph[Point, T] {
+class Grid[T: ClassTag](grid: Array[Array[T]]) extends Graph[Point, T] {
   def width: Int = if grid.isEmpty then 0 else grid.head.length
 
   def height: Int = grid.length
@@ -160,6 +163,14 @@ class Grid[T](grid: Array[Array[T]]) extends Graph[Point, T] {
   def value(point: Point): T = grid(point.y)(point.x)
 
   def update(point: Point, value: T): Unit = grid(point.y)(point.x) = value
+
+  def rows: List[List[T]] = grid.map(_.toList).toList
+
+  def columns: List[List[T]] =
+    (0 until width).map { col =>
+      val cols = grid.map{ row => row(col) }
+      cols.toList
+    }.toList
 
   def allPoints: Seq[Point] =
     for {
