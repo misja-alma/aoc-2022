@@ -11,36 +11,30 @@ object Day8 {
 
   @main
   def day8Part1 = {
-    val visibleGrid = Grid.withDimensions(rows.size, rows.head.size, false)
+    val visibleGrid = Grid.withDimensions(rows.size, rows.head.size, initialValue = false)
 
     rows.zipWithIndex.foreach { (line, row) =>
-
-      val fromLeft = line.zipWithIndex.foldLeft(-1) { case (highest, (d, col)) =>
+      line.zipWithIndex.foldLeft(-1) { case (highest, (d, col)) =>
         if d > highest then visibleGrid.update(Point(row, col), true)
         if d > highest then d else highest
       }
 
-      val fromRight = line.zipWithIndex.reverse.foldLeft(-1) { case (highest, (d, col)) =>
+      line.zipWithIndex.reverse.foldLeft(-1) { case (highest, (d, col)) =>
         if d > highest then visibleGrid.update(Point(row, col), true)
         if d > highest then d else highest
       }
-
-      fromLeft + fromRight
     }
 
     cols.zipWithIndex.foreach { (line, col) =>
-
-      val fromUp = line.zipWithIndex.foldLeft(-1) { case (highest, (d, row)) =>
+      line.zipWithIndex.foldLeft(-1) { case (highest, (d, row)) =>
         if d > highest then visibleGrid.update(Point(row, col), true)
         if d > highest then d else highest
       }
 
-      val fromDown = line.zipWithIndex.reverse.foldLeft(-1) { case (highest, (d, row)) =>
+      line.zipWithIndex.reverse.foldLeft(-1) { case (highest, (d, row)) =>
         if d > highest then visibleGrid.update(Point(row, col), true)
         if d > highest then d else highest
       }
-
-      fromUp + fromDown
     }
 
     val solution = visibleGrid.count(_ == true)
