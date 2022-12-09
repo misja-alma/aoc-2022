@@ -4,7 +4,7 @@ import scala.reflect.ClassTag
 import scala.util.Random
 
 object Grid {
-  val blockChar = 0x2588.toChar
+  val blockChar = '#' // 0x2588.toChar
   
   def fromRows[T: ClassTag](rows: Seq[Seq[T]]): Grid[T] = {
     new Grid(rows.map(_.toArray).toArray)
