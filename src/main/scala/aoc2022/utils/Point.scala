@@ -11,6 +11,11 @@ object Point {
       case _ => sys.error("Cant parse Point: " + s)
 
   def manhattanDistance(p1: Point, p2: Point): Int = Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y)
+
+  def up(p: Point): Point = p.copy(y = p.y - 1)
+  def down(p: Point): Point = p.copy(y = p.y + 1)
+  def left(p: Point): Point = p.copy(x = p.x - 1)
+  def right(p: Point): Point = p.copy(x = p.x + 1)
 }
 
 case class Point3D(x: Int, y: Int, z: Int) {
