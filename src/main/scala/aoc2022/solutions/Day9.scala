@@ -10,38 +10,14 @@ object Day9 {
 
 
   def follow(leader: Point, follower: Point): Point = {
-    // if difx and difx <= 1: do nothing
-    // otherwise: the one with dif1 => dif 0
-    // the one with dif2 => dif1
     val xDif = leader.x - follower.x
     val yDif = leader.y - follower.y
-    if Math.abs(xDif) <= 1 && Math.abs(yDif) <= 1 then follower
+    if Math.abs(xDif) <= 1 && Math.abs(yDif) <= 1
+    then follower // no change needed if still connected
     else {
-      (xDif, yDif) match {
-        case (2, 0) => follower.copy(x = follower.x + 1)
-        case (-2, 0) => follower.copy(x = follower.x - 1)
-
-        case (2, 1) => follower.copy(x = follower.x + 1, y = leader.y)
-        case (-2, 1) => follower.copy(x = follower.x - 1, y = leader.y)
-
-        case (2, -1) => follower.copy(x = follower.x + 1, y = leader.y)
-        case (-2, -1) => follower.copy(x = follower.x - 1, y = leader.y)
-
-        case (0, 2) => follower.copy(y = follower.y + 1)
-        case (0, -2) => follower.copy(y = follower.y - 1)
-
-        case (1, 2) => follower.copy(y = follower.y + 1, x = leader.x)
-        case (1, -2) => follower.copy(y = follower.y - 1, x = leader.x)
-
-        case (-1, 2) => follower.copy(y = follower.y + 1, x = leader.x)
-        case (-1, -2) => follower.copy(y = follower.y - 1, x = leader.x)
-
-        // these happen only for 2nd and further trailers
-        case (2, 2) => follower.copy(x = follower.x + 1, y = follower.y + 1)
-        case (-2, -2) => follower.copy(x = follower.x - 1, y = follower.y - 1)
-        case (2, -2) => follower.copy(x = follower.x + 1, y = follower.y - 1)
-        case (-2, 2) => follower.copy(x = follower.x - 1, y = follower.y + 1)
-      }
+      val dx = Math.signum(xDif).toInt
+      val dy = Math.signum(yDif).toInt
+      follower.copy(x = follower.x + dx, y = follower.y + dy)
     }
   }
 
@@ -82,7 +58,6 @@ object Day9 {
   def day9Part1 = {
     val followers = List(Point(0, 0))
     val finalState = traverseRoute(State(Point(0, 0), followers, Set(Point(0, 0))))
-
     val solution = finalState.visited.size
     println ("Solution: " + solution)
   }
@@ -91,7 +66,6 @@ object Day9 {
   def day9Part2 = {
     val followers = List.fill(9)(Point(0, 0))
     val finalState = traverseRoute(State(Point(0, 0), followers, Set(Point(0, 0))))
-
     val solution = finalState.visited.size
     println("Solution: " + solution)
   }
