@@ -1,5 +1,7 @@
 package aoc2022.utils
 
+import scala.annotation.targetName
+
 case class Point(x: Int, y: Int) {
   override def toString: String = s"($x,$y)"
 }
@@ -19,8 +21,10 @@ object Point {
 }
 
 case class Point3D(x: Int, y: Int, z: Int) {
+  @targetName("add")
   def +(pos2: Point3D): Point3D = Point3D(x + pos2.x, y + pos2.y, z + pos2.z)
 
+  @targetName("subtract")
   def -(pos2: Point3D): Point3D = Point3D(x - pos2.x, y - pos2.y, z - pos2.z)
 
   override def toString: String = s"($x,$y,$z)"

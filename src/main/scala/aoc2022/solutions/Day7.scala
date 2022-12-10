@@ -85,7 +85,7 @@ object Day7 {
 
     def sumSizesUptoMax(graph: DirGraph, maxSize: Long): Long = {
       // don't count root dir
-      val own = if (graph.parent.isEmpty || graph.size > maxSize) 0 else graph.size
+      val own = if graph.parent.isEmpty || graph.size > maxSize then 0 else graph.size
       val subDirs = graph.children.filter(_.isDir)
       own + subDirs.map(sumSizesUptoMax(_, maxSize)).sum
     }

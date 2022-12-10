@@ -4,8 +4,8 @@ import scala.reflect.ClassTag
 import scala.util.Random
 
 object Grid {
-  val blockChar = '#' // 0x2588.toChar
-  
+  val squareBlockChar = 0x2588.toChar
+
   def fromRows[T: ClassTag](rows: Seq[Seq[T]]): Grid[T] = {
     new Grid(rows.map(_.toArray).toArray)
   }
@@ -23,7 +23,7 @@ object Grid {
     grid
   }
 
-  def printBooleanGrid(grid: Grid[Boolean], cutEmptySpace: Boolean = true): Unit = {
+  def printBooleanGrid(grid: Grid[Boolean], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
     val (maxX, maxY) = if cutEmptySpace then
       val allFilled = grid.allPoints.filter { p => grid.value(p) }
       (allFilled.maxBy(_.x).x, allFilled.maxBy(_.y).y)
@@ -36,7 +36,7 @@ object Grid {
       println()
   }
 
-  def printBooleanGridWithPath(grid: Grid[Boolean], path: Seq[Point], cutEmptySpace: Boolean = true): Unit = {
+  def printBooleanGridWithPath(grid: Grid[Boolean], path: Seq[Point], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
     val (maxX, maxY) = if cutEmptySpace then
       val allFilled = grid.allPoints.filter { p => grid.value(p) }
       (allFilled.maxBy(_.x).x, allFilled.maxBy(_.y).y)

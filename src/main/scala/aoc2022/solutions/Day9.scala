@@ -24,14 +24,14 @@ object Day9 {
   case class State(leader: Point, followers: List[Point], visited: Set[Point])
 
   def move(state: State, direction: Point => Point, distance: Int): State = {
-    (distance until 0 by -1).foldLeft(state) { case (state: State, _) =>
+    (distance until 0 by -1).foldLeft(state) { (state: State, _) =>
       val newLeader = direction(state.leader)
       followTheLeader(newLeader, state)
     }
   }
 
   def followTheLeader(leader: Point, state: State): State = {
-    val newFollowers = state.followers.scanLeft(leader) { case (previous, follower) =>
+    val newFollowers = state.followers.scanLeft(leader) { (previous, follower) =>
       follow(previous, follower)
     }.tail
     val newVisited = state.visited + newFollowers.last
@@ -39,7 +39,7 @@ object Day9 {
   }
 
   def traverseRoute(startState: State): State = {
-    lines.foldLeft(startState) { case (state: State, line) =>
+    lines.foldLeft(startState) { (state: State, line) =>
       line match {
         case s"L $s" =>
           move(state, Point.left, s.toInt)

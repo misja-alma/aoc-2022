@@ -44,5 +44,5 @@ package aoc2022.utils
   println (counts)
 
 @main def testIterate =
-  val powers = iterate[Int](1) { total => total * 2 }
+  val powers = LazyList.iterate[Int](1) { total => total * 2 }
   println (powers(10))

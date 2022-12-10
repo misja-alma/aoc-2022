@@ -26,14 +26,13 @@ object Day10 {
 
   case class State(x: Int, cycleValues: List[Int])
 
-  val State(finalX, finalValues) = ops.foldLeft(State(1, List())) { case (st, op) =>
-    op match {
+  val State(finalX, finalValues) = ops.foldLeft(State(1, List())) { (st, op) =>
+    op match
       case Noop() =>
         State(st.x, st.cycleValues :+ st.x)
       case AddX(n: Int) =>
         val newX = st.x + n
         State(newX, st.cycleValues ++ Seq(st.x, st.x))
-    }
   }
 
 
@@ -49,14 +48,16 @@ object Day10 {
 
   @main
   def day10Part2 = {
-    val points = finalValues.zipWithIndex.flatMap { case (x, index) =>
+    val points = finalValues.zipWithIndex.flatMap { (x, index) =>
       val pointer = index % 40
-      if (pointer >= x - 1 && pointer <= x + 1) {
+      if pointer >= x - 1 && pointer <= x + 1
+      then
         Some(Point(index % 40, index / 40))
-      } else None
+      else
+        None
     }
 
     val grid = Grid.fromPoints(points)
-    Grid.printBooleanGrid(grid)
+    Grid.printBooleanGrid(grid, blockChar = Grid.squareBlockChar)
   }
 }
