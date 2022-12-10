@@ -6,13 +6,15 @@ object Day7 {
   val sc = scannerFromResource("/day7.txt")
   val lines = scannerToLines(sc)
 
-  trait Output
-  case class CdRelative(target: String) extends Output
-  case class CdRoot() extends Output
-  case class CdUp() extends Output
-  case class Ls() extends Output
-  case class File(name: String, size: Long) extends Output
-  case class Directory(name: String) extends Output
+  enum Output:
+    case CdRelative(target: String) extends Output
+    case CdRoot() extends Output
+    case CdUp() extends Output
+    case Ls() extends Output
+    case File(name: String, size: Long) extends Output
+    case Directory(name: String) extends Output
+
+  import Output._
 
   val cdroot = """\$ cd /$""".r
   val cdup = """\$ cd \.\.$""".r  // NOTE: we need only single backslashes to escape because we are already within triple quotes
