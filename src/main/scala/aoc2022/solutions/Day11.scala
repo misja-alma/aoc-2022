@@ -10,7 +10,7 @@ object Day11 {
   val lines = scannerToLines(sc)
 
 
-  case class Monkey(operation: BigInt => BigInt, items: List[BigInt], testDivisor: BigInt, throwTrue: Int, throwFalse: Int, nr: Int)
+  case class Monkey(operation: BigInt => BigInt, items: ListBuffer[BigInt], testDivisor: BigInt, throwTrue: Int, throwFalse: Int, nr: Int)
 
   val plus = """\+ (-?\d+)""".r
   val multiply = """\* (-?\d+)""".r
@@ -35,14 +35,14 @@ object Day11 {
       case Square() => x => x * x
       case Plus(term) => _ + term
       case Multiply(factor) => _ * factor
-      case _ => sys.error("Unknow operation: " + op)
+      case _ => sys.error("Unknown operation: " + op)
     }
   }
 
 
   def parseMonkey(lines: Seq[String]): Monkey = {
     val nr = lines(0).trim().drop("Monkey ".size).head.asDigit
-    val items = lines(1).trim().drop("Starting items: ".size).split(',').map { i => BigInt(i.trim().toInt) }.toList
+    val items = ListBuffer.from(lines(1).trim().drop("Starting items: ".size).split(',').map { i => BigInt(i.trim().toInt) })
     val operation = parseOperation(lines(2).trim().drop("Operation: new = old ".size))
     val test = lines(3).trim().drop("Test: divisible by ".size).toInt
     val trueTo = lines(4).trim().drop("If true: throw to monkey ".size).toInt
@@ -54,11 +54,11 @@ object Day11 {
   val blocks = split(lines, line => line.trim.isEmpty)
   val startMonkeys = blocks.map(parseMonkey)
 
-  def calculateRounds(monkeyList: Seq[Monkey], rounds: Int, constraintFunction: BigInt => BigInt): (Array[Monkey], Array[Long]) = {
+  def calculateRounds(monkeyList: Seq[Monkey], rounds: Int, constraintFunction: BigInt => BigInt): (List[Monkey], Array[Long]) = {
 
     val inspected = Array.fill(8)(0L)
-    // monkeys are always updated immediately so a mutable array suits best here
-    val monkeys = monkeyList.toArray
+    // Monkeys are always updated immediately so it's easiest when they are mutable. But that means they need to be copied first.
+    val monkeys = monkeyList.map(_.copy()).toList
 
     for _ <- 1 to rounds do {
       for subject <- monkeys do {
@@ -69,12 +69,10 @@ object Day11 {
         for item <- items do {
           val newItem = constraintFunction(operation(item))
           val toAdd = if newItem % test == 0 then throwTrue else throwFalse
-          val addTo = monkeys(toAdd)
-          val newTarget = addTo.copy(items = addTo.items :+ newItem)
-          monkeys(toAdd) = newTarget
+          monkeys(toAdd).items.append(newItem)
         }
 
-        monkeys(nr) = subject.copy(items = List())
+        monkeys(nr).items.clear()
       }
     }
 
@@ -83,7 +81,7 @@ object Day11 {
   
 
   @main
-  def day11Part1 = {
+  def day11Part1 = {    
       val (_, inspected) = calculateRounds(startMonkeys, 20, _ / 3)
 
       val highest = inspected.toList.sorted.reverse.take(2)
