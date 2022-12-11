@@ -18,6 +18,32 @@ def scannerToLines(sc: Scanner): Seq[String] = {
   result.toSeq
 }
 
+/**
+ *
+ * @param seq
+ * @param predicate
+ * @param includeSeparators if true, includes the separator that ended each Seq. Note: this could be more efficient
+ * @tparam T
+ * @return
+ */
+def split[T](seq: Seq[T], predicate: T => Boolean, includeSeparators: Boolean = false): Seq[Seq[T]] = {
+    val (before, after) = seq.span(predicate andThen (!_))
+    (before, after) match {
+      case (Nil, Nil) => Nil
+      case (Nil, h +: hs) =>
+        if includeSeparators then
+          Seq(Seq(h)) ++ split(hs, predicate, includeSeparators)
+        else
+          split(hs, predicate, includeSeparators)
+      case (_, Nil) => Seq(before)
+      case (_, h +: hs) =>
+        if includeSeparators then
+          Seq(before :+ h) ++ split(hs, predicate, includeSeparators)
+        else
+          Seq(before) ++ split(hs, predicate, includeSeparators)
+    }
+}
+
 trait Graph[E, V] {
   def neighbours(edge: E): Seq[E]
 

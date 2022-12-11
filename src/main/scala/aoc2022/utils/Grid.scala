@@ -36,6 +36,15 @@ object Grid {
       println()
   }
 
+  private def dotOrPath(gridValue: Boolean, onPath: Boolean, blockChar: Char): String = {
+    val normalChar = if gridValue then blockChar else '.'
+    if onPath then Console.GREEN_B + normalChar + Console.BLACK_B else normalChar.toString
+  }
+
+  private def valueOrPath[T](gridValue: T, onPath: Boolean): String = {
+    if onPath then Console.GREEN + gridValue + Console.WHITE else gridValue.toString
+  }
+
   def printBooleanGridWithPath(grid: Grid[Boolean], path: Seq[Point], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
     val (maxX, maxY) = if cutEmptySpace then
       val allFilled = grid.allPoints.filter { p => grid.value(p) }
@@ -48,7 +57,7 @@ object Grid {
     for row <- 0 to maxY do
       for col <- 0 to maxX do
         val pt = Point(col, row)
-        val toPrint = if points.contains(pt) then 'O' else if grid.value(pt) then blockChar else '.'
+        val toPrint = dotOrPath(grid.value(pt), points.contains(pt), blockChar)
         print(toPrint)
       println()
   }
@@ -62,14 +71,14 @@ object Grid {
       println()
   }
 
-  def printGridWithPath(grid: Grid[?], path: Seq[Point], pathMarker: String = "O"): Unit = {
+  def printGridWithPath(grid: Grid[?], path: Seq[Point], pathColor: String = Console.GREEN): Unit = {
     val points = path.toSet
     val maxX = grid.width
     val maxY = grid.height
     for y <- 0 until maxY do
       for x <- 0 until maxX do
         val pt = Point(x, y)
-        val toPrint = if points.contains(pt) then pathMarker else grid.value(pt)
+        val toPrint = valueOrPath(grid.value(pt), points.contains(pt))
         print(toPrint)
       println()
   }

@@ -35,7 +35,6 @@ object Day10 {
         State(newX, st.cycleValues ++ Seq(st.x, st.x))
   }
 
-
   @main
   def day10Part1 = {
     val toCheck = Seq(20, 60, 100, 140, 180, 220)

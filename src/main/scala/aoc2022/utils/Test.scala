@@ -1,11 +1,13 @@
 package aoc2022.utils
 
+import scala.util.Random
+
 @main def testCheapestPath =
-  val grid = Grid.withDimensions(3, 3, initialValue = 1)
-  grid.update(Point(1,1), 5)
-  grid.update(Point(2,1), 2)
-  Grid.printGrid(grid)
-  val cheapest = Search.findCheapestPath(grid, Point(0, 0), Point(2, 2))
+  val grid = Grid.withDimensions(30, 30, initialValue = 0)
+  for x <- 0 until grid.width do
+    for y <- 0 until grid.height do
+      grid.update(Point(x, y), Random.nextInt(10))
+  val cheapest = Search.findCheapestPath(grid, Point(0, 0), Point(grid.width - 1, grid.height - 1))
   println(cheapest)
   Grid.printGridWithPath(grid, cheapest.get.reverseSteps)
 
@@ -46,3 +48,11 @@ package aoc2022.utils
 @main def testIterate =
   val powers = LazyList.iterate[Int](1) { total => total * 2 }
   println (powers(10))
+  // Note: LazyList.dropWhile.head can also be done using LazyList.unfold
+
+@main def testSplit =
+  val seq = Seq(0,1,2,3,4,5,6,7,8,9)
+  val res = split(seq, x => x % 3 == 0, true)
+  println(res)
+  val res2 = split(seq, x => x % 3 == 0, false)
+  println(res2)
