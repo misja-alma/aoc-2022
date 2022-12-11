@@ -52,44 +52,30 @@ object Day11 {
   }
 
   val blocks = split(lines, line => line.trim.isEmpty)
-  val startMonkeys = blocks.map(parseMonkey).toList
+  val startMonkeys = blocks.map(parseMonkey)
 
-
-  // TODO better to use mutable array here, since everything always needs to be updated at once
-
-  def calculateRounds(rounds: Int, constraintFunction: BigInt => BigInt): (List[Monkey], Array[Long]) = {
+  def calculateRounds(monkeyList: Seq[Monkey], rounds: Int, constraintFunction: BigInt => BigInt): (Array[Monkey], Array[Long]) = {
 
     val inspected = Array.fill(8)(0L)
-    var monkeys = startMonkeys
+    // monkeys are always updated immediately so a mutable array suits best here
+    val monkeys = monkeyList.toArray
 
     for _ <- 1 to rounds do {
-      val roundResult = monkeys.foldLeft(monkeys) { case (prevMonkeys, Monkey(_, _, _, _, _, nr)) =>
-
-        val subject = prevMonkeys(nr)
-        val Monkey(operation, items, test, throwTrue, throwFalse, _) = subject
+      for subject <- monkeys do {
+        val Monkey(operation, items, test, throwTrue, throwFalse, nr) = subject
 
         inspected(nr) = inspected(nr) + items.size
 
-        val newMonkeys = items.foldLeft(prevMonkeys) { (oldMonkeys, item) =>
-
+        for item <- items do {
           val newItem = constraintFunction(operation(item))
-
           val toAdd = if newItem % test == 0 then throwTrue else throwFalse
-
-          val addTo = oldMonkeys(toAdd)
-
+          val addTo = monkeys(toAdd)
           val newTarget = addTo.copy(items = addTo.items :+ newItem)
-          val newMonkeys = ListBuffer.from(oldMonkeys)
-          newMonkeys.update(toAdd, newTarget)
-          newMonkeys.toList
+          monkeys(toAdd) = newTarget
         }
 
-        val newerMonkeys = ListBuffer.from(newMonkeys)
-        newerMonkeys.update(nr, subject.copy(items = List()))
-        newerMonkeys.toList
+        monkeys(nr) = subject.copy(items = List())
       }
-
-      monkeys = roundResult
     }
 
     (monkeys, inspected)
@@ -98,11 +84,11 @@ object Day11 {
 
   @main
   def day11Part1 = {
-      val (_, inspected) = calculateRounds(20, _ / 3)
+      val (_, inspected) = calculateRounds(startMonkeys, 20, _ / 3)
 
       val highest = inspected.toList.sorted.reverse.take(2)
       val solution = highest(0) * highest(1)
-      println ("Solution: " + solution)    // 151312
+      println ("Solution: " + solution)
   }
 
   @main
@@ -110,11 +96,10 @@ object Day11 {
     val allDivisors = startMonkeys.map(_.testDivisor)
     val product = allDivisors.product
 
-    val (_, inspected) = calculateRounds(10000, _ % product)
+    val (_, inspected) = calculateRounds(startMonkeys, 10000, _ % product)
 
     val highest = inspected.toList.sorted.reverse.take(2)
     val solution = highest(0) * highest(1)
     println("Solution: " + solution)
-    // 51382025916
   }
 }
