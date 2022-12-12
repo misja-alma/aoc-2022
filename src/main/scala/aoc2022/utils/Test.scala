@@ -34,7 +34,8 @@ def cheapestPathBruteForce(g: Graph[Point, Int], from: Point, to: Point): Path[P
   Grid.printGridWithPath(grid, cheapestBf.reverseSteps)
 
 @main def testShortestPath =
-  val (grid, start, end) = Grid.createMaze(30, 30)
+  val (rawGrid, start, end) = Grid.createMaze(30, 30)
+  val grid = rawGrid.copy(getNeighbours = { case (g, pt) => Grid.directNeighbours(g, pt).filterNot(g.value)} ) // true = blocked
   Grid.printBooleanGrid(grid, cutEmptySpace = false)
   println()
   val shortest = Search.findShortestPath(grid, start, _ == end)

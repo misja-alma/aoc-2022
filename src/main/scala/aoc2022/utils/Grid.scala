@@ -5,6 +5,8 @@ import scala.util.Random
 
 object Grid {
   val squareBlockChar = 0x2588.toChar
+  val consoleForeground = Console.BLACK
+  val consoleBackground = Console.WHITE_B
 
   def fromRows[T: ClassTag](rows: Seq[Seq[T]]): Grid[T] = {
     new Grid(rows.map(_.toArray).toArray)
@@ -23,6 +25,26 @@ object Grid {
     grid
   }
 
+  /**
+   * Horizontal or vertical neighbours that are in the grid
+   */
+  def directNeighbours(grid: Grid[?], point: Point): Seq[Point] = {
+    val raw = Seq(Point(point.x - 1, point.y), Point(point.x, point.y - 1), Point(point.x + 1, point.y), Point(point.x, point.y + 1))
+    grid.filterValid(raw)
+  }
+
+  /**
+   * Horizontal, vertical or diagonal neighbours in the grid
+   */
+  def allNeighbours(grid: Grid[?], point: Point): Seq[Point] = {
+    val raw = for {
+      px <- point.x - 1 to point.x + 1
+      py <- point.y - 1 to point.y + 1
+    } yield Point(px, py)
+
+    grid.filterValid(raw)
+  }
+
   def printBooleanGrid(grid: Grid[Boolean], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
     val (maxX, maxY) = if cutEmptySpace then
       val allFilled = grid.allPoints.filter { p => grid.value(p) }
@@ -38,11 +60,11 @@ object Grid {
 
   private def dotOrPath(gridValue: Boolean, onPath: Boolean, blockChar: Char): String = {
     val normalChar = if gridValue then blockChar else '.'
-    if onPath then Console.GREEN_B + normalChar + Console.BLACK_B else normalChar.toString
+    if onPath then Console.GREEN_B + normalChar + consoleBackground else normalChar.toString
   }
 
   private def valueOrPath[T](gridValue: T, onPath: Boolean): String = {
-    if onPath then Console.GREEN + gridValue + Console.WHITE else gridValue.toString
+    if onPath then Console.GREEN + gridValue + consoleForeground else gridValue.toString
   }
 
   def printBooleanGridWithPath(grid: Grid[Boolean], path: Seq[Point], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
@@ -165,12 +187,14 @@ object Grid {
  * @param grid main array contains the rows, subArrays the columns.
  * @tparam T
  */
-class Grid[T: ClassTag](grid: Array[Array[T]]) extends Graph[Point, T] {
+case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Point) => Seq[Point] = Grid.directNeighbours) extends Graph[Point, T] {
   def width: Int = if grid.isEmpty then 0 else grid.head.length
 
   def height: Int = grid.length
 
-  def value(point: Point): T = grid(point.y)(point.x)
+  override def value(point: Point): T = grid(point.y)(point.x)
+
+  override def neighbours(edge: Point): Seq[Point] = getNeighbours(this, edge)
 
   def update(point: Point, value: T): Unit = grid(point.y)(point.x) = value
 
@@ -196,26 +220,6 @@ class Grid[T: ClassTag](grid: Array[Array[T]]) extends Graph[Point, T] {
 
   def filterValid(pts: Seq[Point]): Seq[Point] =
     pts.filter(p => p.x >= 0 && p.x < grid.head.length && p.y >= 0 && p.y < grid.length)
-
-  /**
-   * Horizontal or vertical neighbours that are in the grid
-   */
-  def neighbours(point: Point): Seq[Point] = {
-    val raw = Seq(Point(point.x - 1, point.y), Point(point.x, point.y - 1), Point(point.x + 1, point.y), Point(point.x, point.y + 1))
-    filterValid(raw)
-  }
-
-  /**
-   * Horizontal, vertical or diagonal neighbours in the grid
-   */
-  def allNeighbours(point: Point): Seq[Point] = {
-    val raw = for {
-      px <- point.x - 1 to point.x + 1
-      py <- point.y - 1 to point.y + 1
-    } yield Point(px, py)
-
-    filterValid(raw)
-  }
 
   def forall(pred: T => Boolean): Boolean = {
     grid.forall(_.forall(pred))

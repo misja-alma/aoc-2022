@@ -52,10 +52,9 @@ object Search {
 
   /**
    * Returns the shortest path from startPoint to a point where stopCondition = true
-   * Only travels over points that have value False (i.e. not blocked) in the grid
    * NOTE: maybe better to let neighbours take this into account
    */
-  def findShortestPath[E](grid: Graph[E, Boolean], startPoint: E, stopCondition: E => Boolean): Option[Seq[E]] = {
+  def findShortestPath[E](grid: Graph[E, ?], startPoint: E, stopCondition: E => Boolean): Option[Seq[E]] = {
     val startPath = Seq(startPoint)
 
     val queue = mutable.Queue.from[Seq[E]](Seq(startPath))
@@ -71,7 +70,6 @@ object Search {
         val nextCandidates = grid
           .neighbours(point)
           .filterNot(visited)
-          .filterNot(grid.value) // Only consider points with value false
           .map { pt =>
             pt +: path
           }
