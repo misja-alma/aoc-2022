@@ -52,7 +52,6 @@ object Search {
 
   /**
    * Returns the shortest path from startPoint to a point where stopCondition = true
-   * NOTE: maybe better to let neighbours take this into account
    */
   def findShortestPath[E](grid: Graph[E, ?], startPoint: E, stopCondition: E => Boolean): Option[Seq[E]] = {
     val startPath = Seq(startPoint)

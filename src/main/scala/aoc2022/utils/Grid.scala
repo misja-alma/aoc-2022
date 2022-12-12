@@ -5,8 +5,6 @@ import scala.util.Random
 
 object Grid {
   val squareBlockChar = 0x2588.toChar
-  val consoleForeground = Console.BLACK
-  val consoleBackground = Console.WHITE_B
 
   def fromRows[T: ClassTag](rows: Seq[Seq[T]]): Grid[T] = {
     new Grid(rows.map(_.toArray).toArray)
@@ -60,11 +58,11 @@ object Grid {
 
   private def dotOrPath(gridValue: Boolean, onPath: Boolean, blockChar: Char): String = {
     val normalChar = if gridValue then blockChar else '.'
-    if onPath then Console.GREEN_B + normalChar + consoleBackground else normalChar.toString
+    if onPath then Console.GREEN_B + normalChar +  Console.RESET else normalChar.toString
   }
 
   private def valueOrPath[T](gridValue: T, onPath: Boolean): String = {
-    if onPath then Console.GREEN + gridValue + consoleForeground else gridValue.toString
+    if onPath then Console.GREEN + gridValue +  Console.RESET else gridValue.toString
   }
 
   def printBooleanGridWithPath(grid: Grid[Boolean], path: Seq[Point], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
@@ -107,19 +105,26 @@ object Grid {
 
   /**
    * Creates a random maze, returns the grid, start, end
-   * TODO FIX sometimes it creates walls in front of doors
    */
   def createMaze(width: Int, height: Int): (Grid[Boolean], Point, Point) = {
     // fill maze with empty space
     val grid = Grid.withDimensions(width, height, initialValue = false)
 
-    def drawVerticalWall(grid: Grid[Boolean], x: Int, yInterval: Interval): Unit =
+    def drawVerticalWall(grid: Grid[Boolean], x: Int, yInterval: Interval): Unit = {
       for y <- yInterval.min to yInterval.max do
         grid.update(Point(x, y), true)
+      // don't block doors
+      if !grid.value(Point(x, yInterval.min - 1)) then grid.update(Point(x, yInterval.min), false)
+      if !grid.value(Point(x, yInterval.max + 1)) then grid.update(Point(x, yInterval.max), false)
+    }
 
-    def drawHorizontalWall(grid: Grid[Boolean], y: Int, xInterval: Interval): Unit =
+    def drawHorizontalWall(grid: Grid[Boolean], y: Int, xInterval: Interval): Unit = {
       for x <- xInterval.min to xInterval.max do
         grid.update (Point(x, y), true)
+      // don't block doors
+      if !grid.value(Point(xInterval.min - 1, y)) then grid.update(Point(xInterval.min, y), false)
+      if !grid.value(Point(xInterval.max + 1, y)) then grid.update(Point(xInterval.max, y), false)
+    }
 
     // make walls around border
     for x <- 0 until width do
@@ -185,6 +190,7 @@ object Grid {
 /**
  *
  * @param grid main array contains the rows, subArrays the columns.
+ * @param getNeighbours returns all non-blocked neighbours for a point. Default is all horizontal/vertical ones.
  * @tparam T
  */
 case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Point) => Seq[Point] = Grid.directNeighbours) extends Graph[Point, T] {

@@ -21,11 +21,16 @@ def cheapestPathBruteForce(g: Graph[Point, Int], from: Point, to: Point): Path[P
   result.copy(reverseSteps = reversedSteps, total = result.total - step1Cost)
 }
 
-@main def testCheapestPath =
-  val grid = Grid.withDimensions(12, 12, initialValue = 0)
+def randomGrid(width: Int, height: Int): Grid[Int] = {
+  val grid = Grid.withDimensions(width, height, initialValue = 0)
   for x <- 0 until grid.width do
     for y <- 0 until grid.height do
       grid.update(Point(x, y), Random.nextInt(10))
+  grid
+}
+
+@main def testCheapestPath =
+  val grid = randomGrid(12, 12)
   val cheapest = Search.findCheapestPath(grid, Point(0, 0), Point(grid.width - 1, grid.height - 1))
   println(cheapest)
   Grid.printGridWithPath(grid, cheapest.get.reverseSteps)
