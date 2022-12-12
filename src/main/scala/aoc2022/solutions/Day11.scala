@@ -21,7 +21,7 @@ object Day11 {
     case Multiply(factor: Int) extends Operation
     case Square() extends Operation
 
-  import Operation._
+  import Operation.*
 
   def parseOperation(op: String): Operation = op match {
     case square() => Square()
@@ -39,14 +39,13 @@ object Day11 {
     }
   }
 
-
   def parseMonkey(lines: Seq[String]): Monkey = {
-    val nr = lines(0).trim().drop("Monkey ".size).head.asDigit
-    val items = ListBuffer.from(lines(1).trim().drop("Starting items: ".size).split(',').map { i => BigInt(i.trim().toInt) })
-    val operation = parseOperation(lines(2).trim().drop("Operation: new = old ".size))
-    val test = lines(3).trim().drop("Test: divisible by ".size).toInt
-    val trueTo = lines(4).trim().drop("If true: throw to monkey ".size).toInt
-    val falseTo = lines(5).trim().drop("If false: throw to monkey ".size).toInt
+    val nr = lines(0).trim() match { case s"Monkey $n:" => n.toInt }
+    val items = ListBuffer.from(lines(1).trim().drop("Starting items: ".length).split(',').map { i => BigInt(i.trim().toInt) })
+    val operation = parseOperation(lines(2).trim().drop("Operation: new = old ".length))
+    val test = lines(3).trim() match { case s"Test: divisible by $t" => t.toInt }
+    val trueTo = lines(4).trim() match { case s"If true: throw to monkey $t" => t.toInt }
+    val falseTo = lines(5).trim() match { case s"If false: throw to monkey $f" => f.toInt }
 
     Monkey(toFunction(operation), items, test, trueTo, falseTo, nr)
   }
@@ -56,7 +55,7 @@ object Day11 {
 
   def calculateRounds(monkeyList: Seq[Monkey], rounds: Int, constraintFunction: BigInt => BigInt): (List[Monkey], Array[Long]) = {
 
-    val inspected = Array.fill(8)(0L)
+    val inspected = Array.fill(monkeyList.size)(0L)
     // Monkeys are always updated immediately so it's easiest when they are mutable. But that means they need to be copied first.
     val monkeys = monkeyList.map(_.copy()).toList
 
@@ -78,10 +77,10 @@ object Day11 {
 
     (monkeys, inspected)
   }
-  
+
 
   @main
-  def day11Part1 = {    
+  def day11Part1 = {
       val (_, inspected) = calculateRounds(startMonkeys, 20, _ / 3)
 
       val highest = inspected.toList.sorted.reverse.take(2)

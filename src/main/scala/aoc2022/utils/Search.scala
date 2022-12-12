@@ -4,7 +4,7 @@ import scala.collection.mutable
 
 object Search {
 
-  case class Path[E](reverseSteps: Seq[E], total: Int, point: E) {
+  case class Path[E](reverseSteps: Seq[E], total: Int, endPoint: E) {
     override def toString: String = s"Total $total: " + reverseSteps.reverse.mkString(" -> ")
   }
 
@@ -31,11 +31,11 @@ object Search {
       val p = queue.dequeue()
       // Note: p.point could have been visited already, but still this visit might bring a lower cost
       // this is because we add points to visited already when we're adding them as neighbours
-      if (p.point == endPoint) {
+      if (p.endPoint == endPoint) {
         if best.isEmpty || p.total < best.get.total then best = Some(p)
       } else {
-        visited.put(p.point, p.total)
-        grid.neighbours(p.point).foreach { nb =>
+        visited.put(p.endPoint, p.total)
+        grid.neighbours(p.endPoint).foreach { nb =>
           val newTotal = p.total + grid.value(nb)
           val alreadyVisited2 = visited.getOrElse(nb, Integer.MAX_VALUE)
           // for A* this check makes a huge difference .. Maybe because pq becomes slow as well with many nodes?

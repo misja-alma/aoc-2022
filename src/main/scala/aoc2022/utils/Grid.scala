@@ -85,6 +85,7 @@ object Grid {
 
   /**
    * Creates a random maze, returns the grid, start, end
+   * TODO FIX sometimes it creates walls in front of doors
    */
   def createMaze(width: Int, height: Int): (Grid[Boolean], Point, Point) = {
     // fill maze with empty space
