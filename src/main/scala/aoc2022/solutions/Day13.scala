@@ -61,15 +61,15 @@ object Day13 {
   val IN_ORDER = -1
   val UNDECIDED = 0
 
-  def compare(ilLeft: IntListType, ilRight: IntListType): Int = {
+  def comparePackets(ilLeft: IntListType, ilRight: IntListType): Int = {
     (ilLeft, ilRight) match {
       case (IntLeaf(vl), IntLeaf(vr)) => vl.compareTo(vr)
-      case (l@IntLeaf(_), r@IntList(_)) => compare(IntList(List(l)), r)
-      case (l@IntList(_), r@IntLeaf(_)) => compare(l, IntList(List(r)))
+      case (l@IntLeaf(_), r@IntList(_)) => comparePackets(IntList(List(l)), r)
+      case (l@IntList(_), r@IntLeaf(_)) => comparePackets(l, IntList(List(r)))
       case (iListLeft@IntList(_), iListRight@IntList(_)) =>
-        val dropUndecided = iListLeft.children.zip(iListRight.children).dropWhile { case (c1, c2) => compare(c1, c2) == UNDECIDED}
+        val dropUndecided = iListLeft.children.zip(iListRight.children).dropWhile { case (c1, c2) => comparePackets(c1, c2) == UNDECIDED}
         if dropUndecided.isEmpty then iListLeft.children.size.compareTo(iListRight.children.size)
-        else compare(dropUndecided.head._1, dropUndecided.head._2)
+        else comparePackets(dropUndecided.head._1, dropUndecided.head._2)
     }
   }
 
@@ -77,7 +77,7 @@ object Day13 {
   @main
   def day13Part1 = {
     val correct = couples.zipWithIndex.filter { case ((l1, l2), _) =>
-      compare(l1, l2) == IN_ORDER
+      comparePackets(l1, l2) == IN_ORDER
     }
 
     val solution = correct.map { case (_, i) => i + 1}.sum
@@ -87,7 +87,7 @@ object Day13 {
   @main
   def day13Part2 = {
     val packetComparator = new Ordering[IntListType] {
-      override def compare(x: IntListType, y: IntListType): Int = compare(x, y)
+      override def compare(x: IntListType, y: IntListType): Int = comparePackets(x, y)
     }
 
     val dividerPackets = "[[2]]\n[[6]]".split("\n").map(parseList)
