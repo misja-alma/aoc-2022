@@ -2,6 +2,8 @@ package aoc2022.solutions
 
 import aoc2022.utils.*
 
+import scala.annotation.tailrec
+
 object Day13 {
   val sc = scannerFromResource("/day13.txt")
   val lines = scannerToLines(sc)
@@ -12,6 +14,7 @@ object Day13 {
 
   def parseList(line: String): IntListType = {
     
+    @tailrec
     def doParse(ln: String, stack: List[IntListType]): List[IntListType] = {
       if ln.isEmpty then
         stack
@@ -42,7 +45,6 @@ object Day13 {
           doParse(ln.drop(valueChars.length), stack)
         else    //this should never happen
           sys.error("Intleaf parsed without parent!")
-
     }
 
     val finalStack = doParse(line, List())
@@ -59,26 +61,23 @@ object Day13 {
   val IN_ORDER = -1
   val UNDECIDED = 0
 
-  def inOrder(ilLeft: IntListType, ilRight: IntListType): Int = {
+  def compare(ilLeft: IntListType, ilRight: IntListType): Int = {
     (ilLeft, ilRight) match {
-      case (IntLeaf(vl), IntLeaf(vr)) => vl.compareTo(vr)  // vl > vr => 1 which is out of order
-      case (l@IntLeaf(_), r@IntList(_)) => inOrder(IntList(List(l)), r)
-      case (l@IntList(_), r@IntLeaf(_)) => inOrder(l, IntList(List(r)))
+      case (IntLeaf(vl), IntLeaf(vr)) => vl.compareTo(vr)
+      case (l@IntLeaf(_), r@IntList(_)) => compare(IntList(List(l)), r)
+      case (l@IntList(_), r@IntLeaf(_)) => compare(l, IntList(List(r)))
       case (iListLeft@IntList(_), iListRight@IntList(_)) =>
-        // zip both; drop while undecided; if result empty, left list should be smaller than right list
-        val dropUndecided = iListLeft.children.zip(iListRight.children).dropWhile { case (c1, c2) => inOrder(c1, c2) == UNDECIDED}
+        val dropUndecided = iListLeft.children.zip(iListRight.children).dropWhile { case (c1, c2) => compare(c1, c2) == UNDECIDED}
         if dropUndecided.isEmpty then iListLeft.children.size.compareTo(iListRight.children.size)
-        else inOrder(dropUndecided.head._1, dropUndecided.head._2)
+        else compare(dropUndecided.head._1, dropUndecided.head._2)
     }
   }
 
 
   @main
   def day13Part1 = {
-
     val correct = couples.zipWithIndex.filter { case ((l1, l2), _) =>
-      val result = inOrder(l1, l2)
-      result == IN_ORDER || result == UNDECIDED
+      compare(l1, l2) == IN_ORDER
     }
 
     val solution = correct.map { case (_, i) => i + 1}.sum
@@ -88,7 +87,7 @@ object Day13 {
   @main
   def day13Part2 = {
     val packetComparator = new Ordering[IntListType] {
-      override def compare(x: IntListType, y: IntListType): Int = inOrder(x, y)
+      override def compare(x: IntListType, y: IntListType): Int = compare(x, y)
     }
 
     val dividerPackets = "[[2]]\n[[6]]".split("\n").map(parseList)
