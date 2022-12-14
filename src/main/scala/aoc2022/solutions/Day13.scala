@@ -91,9 +91,9 @@ object Day13 {
     }
 
     val dividerPackets = "[[2]]\n[[6]]".split("\n").map(parseList)
-    val allPackets = couples.flatMap { case (l,r) => Seq(l,r)} ++ dividerPackets
+    val allPackets = couples.flatMap(_.toList) ++ dividerPackets
     val sorted = allPackets.sorted(packetComparator)
-    val indices = dividerPackets.map { k => sorted.indexOf(k)  + 1}
+    val indices = dividerPackets.map { k => sorted.indexOf(k) + 1 }
     val solution = indices.product
     println ("Solution: " + solution)
   }

@@ -1,5 +1,6 @@
 package aoc2022.utils
 
+import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.util.Random
 
@@ -23,10 +24,15 @@ object Grid {
     grid
   }
 
+  def infiniteFromPoints[T: ClassTag](points: Seq[Point], pointValue: T, defaultValue: T): MapGrid[T] = {
+    val ptsMap = collection.mutable.Map[Point, T](points.map ( _ -> pointValue ): _*)
+    new MapGrid[T](ptsMap, defaultValue)
+  }
+
   /**
    * Horizontal or vertical neighbours that are in the grid
    */
-  def directNeighbours(grid: Grid[?], point: Point): Seq[Point] = {
+  def directNeighbours(grid: IGrid[?], point: Point): Seq[Point] = {
     val raw = Seq(Point(point.x - 1, point.y), Point(point.x, point.y - 1), Point(point.x + 1, point.y), Point(point.x, point.y + 1))
     grid.filterValid(raw)
   }
@@ -43,7 +49,7 @@ object Grid {
     grid.filterValid(raw)
   }
 
-  def printBooleanGrid(grid: Grid[Boolean], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
+  def printBooleanGrid(grid: IGrid[Boolean], cutEmptySpace: Boolean = true, blockChar: Char = '#'): Unit = {
     val (maxX, maxY) = if cutEmptySpace then
       val allFilled = grid.allPoints.filter { p => grid.value(p) }
       (allFilled.maxBy(_.x).x, allFilled.maxBy(_.y).y)
@@ -187,16 +193,26 @@ object Grid {
   }
 }
 
+trait IGrid[T: ClassTag] extends Graph[Point, T] {
+  def filterValid(pts: Seq[Point]): Seq[Point]
+
+  def allPoints: Seq[Point]
+
+  def width: Int
+
+  def height: Int
+}
+
 /**
  *
  * @param grid main array contains the rows, subArrays the columns.
  * @param getNeighbours returns all non-blocked neighbours for a point. Default is all horizontal/vertical ones.
  * @tparam T
  */
-case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Point) => Seq[Point] = Grid.directNeighbours) extends Graph[Point, T] {
-  def width: Int = if grid.isEmpty then 0 else grid.head.length
+case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Point) => Seq[Point] = Grid.directNeighbours) extends IGrid[T] {
+  override def width: Int = if grid.isEmpty then 0 else grid.head.length
 
-  def height: Int = grid.length
+  override def height: Int = grid.length
 
   override def value(point: Point): T = grid(point.y)(point.x)
 
@@ -212,7 +228,7 @@ case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Poi
       cols.toList
     }.toList
 
-  def allPoints: Seq[Point] =
+  override def allPoints: Seq[Point] =
     for {
       y <- grid.indices
       x <- grid.head.indices
@@ -224,7 +240,7 @@ case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Poi
       x <- grid.head.indices.to(LazyList)
     } yield Point(x, y)
 
-  def filterValid(pts: Seq[Point]): Seq[Point] =
+  override def filterValid(pts: Seq[Point]): Seq[Point] =
     pts.filter(p => p.x >= 0 && p.x < grid.head.length && p.y >= 0 && p.y < grid.length)
 
   def forall(pred: T => Boolean): Boolean = {
@@ -245,5 +261,44 @@ case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Poi
       width == grid2.width && height == grid2.height &&
         allPoints.forall { pt => value(pt) == grid2.value(pt) }
     }
+  }
+}
+
+class MapGrid[T: ClassTag](grid: mutable.Map[Point, T], defaultValue: T, getNeighbours: (MapGrid[T], Point) => Seq[Point] = Grid.directNeighbours) extends IGrid[T] {
+
+  override def width: Int = {
+    val allX = allPoints.map(_.x)
+    allX.max - allX.min + 1
+  }
+
+  override def height: Int = {
+    val allY = allPoints.map(_.y)
+    allY.max - allY.min + 1
+  }
+  
+  override def value(point: Point): T = grid.get(point).getOrElse(defaultValue)
+
+  override def neighbours(edge: Point): Seq[Point] = getNeighbours(this, edge)
+
+  def update(point: Point, value: T): Unit = grid.update(point, value)
+
+  override def allPoints: Seq[Point] =
+    grid.keys.toSeq
+
+  def allPointsLazy: LazyList[Point] =
+    LazyList.from(grid.keys)
+
+  override def filterValid(pts: Seq[Point]): Seq[Point] = pts
+
+  def forall(pred: T => Boolean): Boolean = {
+    allPoints.forall { k => pred(value(k)) }
+  }
+
+  def count(pred: T => Boolean): Int = {
+    allPoints.count { p => pred(value(p)) }
+  }
+
+  def findPoint(pred: T => Boolean): Option[Point] = {
+    allPointsLazy.find(p => pred(value(p)))
   }
 }
