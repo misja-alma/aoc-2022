@@ -18,6 +18,14 @@ def scannerToLines(sc: Scanner): Seq[String] = {
   result.toSeq
 }
 
+def printSolution(solver: => Any): Unit = {
+  val start = System.currentTimeMillis()
+  val solution = solver
+  val time = System.currentTimeMillis() - start
+  println("Solution: " + solution)
+  println(s"Solving took $time milliseconds")
+}
+
 /**
  *
  * @param seq

@@ -23,44 +23,46 @@ object Day15 {
     if leftOverReach < 0 then None else Some(Interval(sensor.x - leftOverReach, sensor.x + leftOverReach))
   }
 
-  
-  @main
-  def day15Part1 = {           
-    val checkY = 2000000
-    val intervals = data.flatMap { case (sensor, beacon) =>
-      reachableIntervalOnLine(checkY, sensor, beacon)
-    }   // Note list can be empty
-    val start = intervals.map(_.min).min
-    val end = intervals.map(_.max).max
-    val solution = (start to end).count { x =>
-      val pt = Point(x, checkY)
-      intervals.exists(_.contains(x)) && !beaconSet.contains(pt)
-    }
 
-    println ("Solution: " + solution)
-  }
-  
   @main
-  def day15Part2 = {
-    val solution = LazyList.from(0 to 4000000).flatMap{ checkY =>
-      
+  def day15Part1 =
+    printSolution {
+      val checkY = 2000000
       val intervals = data.flatMap { case (sensor, beacon) =>
         reachableIntervalOnLine(checkY, sensor, beacon)
-      }
-      val sortedByX = intervals.sortBy(_.min)
-      val lastCoveredX = sortedByX.tail.foldLeft(sortedByX.head.max) { case (maxCoveredX, interval) =>
-        if interval.min <= maxCoveredX + 1 then
-          Math.max(maxCoveredX, interval.max)
-        else
-          maxCoveredX
+      } // Note list can be empty
+      val start = intervals.map(_.min).min
+      val end = intervals.map(_.max).max
+      val solution = (start to end).count { x =>
+        val pt = Point(x, checkY)
+        intervals.exists(_.contains(x)) && !beaconSet.contains(pt)
       }
 
-      if lastCoveredX < 4000000 then
-        val solutionX = lastCoveredX + 1
-        Some(Point(solutionX, checkY))
-      else None
-    }.head
-    
-    println ("Solution: " + (solution.x * 4000000L + solution.y))    
-  }
+      solution
+    }
+
+  @main
+  def day15Part2 =
+    printSolution {
+      val solution = LazyList.from(0 to 4000000).flatMap { checkY =>
+
+        val intervals = data.flatMap { case (sensor, beacon) =>
+          reachableIntervalOnLine(checkY, sensor, beacon)
+        }
+        val sortedByX = intervals.sortBy(_.min)
+        val lastCoveredX = sortedByX.tail.foldLeft(sortedByX.head.max) { case (maxCoveredX, interval) =>
+          if interval.min <= maxCoveredX + 1 then
+            Math.max(maxCoveredX, interval.max)
+          else
+            maxCoveredX
+        }
+
+        if lastCoveredX < 4000000 then
+          val solutionX = lastCoveredX + 1
+          Some(Point(solutionX, checkY))
+        else None
+      }.head
+
+      solution.x * 4000000L + solution.y
+    }
 }
