@@ -42,30 +42,25 @@ object Day15 {
   
   @main
   def day15Part2 = {
-    var solutionX = 0
-
     val solution = LazyList.from(0 to 4000000).flatMap{ checkY =>
-      println("Checking " + checkY)
       
       val intervals = data.flatMap { case (sensor, beacon) =>
         reachableIntervalOnLine(checkY, sensor, beacon)
       }
       val sortedByX = intervals.sortBy(_.min)
-      val finalInterval = sortedByX.tail.foldLeft(sortedByX.head) { case (merged, interval) =>
-        if merged.intersect(interval).nonEmpty then
-          Interval(merged.min, Math.max(merged.max, interval.max))
+      val lastCoveredX = sortedByX.tail.foldLeft(sortedByX.head.max) { case (maxCoveredX, interval) =>
+        if interval.min <= maxCoveredX + 1 then
+          Math.max(maxCoveredX, interval.max)
         else
-          if interval.min == merged.max + 1 then
-            Interval(merged.min, interval.max)
-          else merged
+          maxCoveredX
       }
 
-      if finalInterval.max < 4000000 then
-        solutionX = finalInterval.max + 1
+      if lastCoveredX < 4000000 then
+        val solutionX = lastCoveredX + 1
         Some(Point(solutionX, checkY))
       else None
     }.head
     
-    println (  solution.x * 4000000L + solution.y)
+    println ("Solution: " + (solution.x * 4000000L + solution.y))    
   }
 }
