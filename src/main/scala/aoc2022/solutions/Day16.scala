@@ -7,7 +7,6 @@ object Day16 {
   val sc = scannerFromResource("/day16.txt")
   val lines = scannerToLines(sc)
 
-  // Valve ZN has flow rate=0; tunnels lead to valves SD, ZV
   val nodes = lines.map { line =>
     val node = line.drop("Valve ".length).take(2)
     val rateEnd = line.indexOf(";")
@@ -25,9 +24,6 @@ object Day16 {
   val ratesMap = nodes.map { case (n, rate, _) => n -> rate }.toMap
   val maxFlow = ratesMap.values.sum
 
-
-
-
   @main
   def day16Part1 = printSolution {
     case class GameState(nodesOpen: Set[String], position: String, flow: Int, turn: Int) {
@@ -42,7 +38,6 @@ object Day16 {
 
     val visited = scala.collection.mutable.Set[GameState]()
     visited.add(startState)
-
 
     def handleNextTurn(gs: GameState): GameState = {
       val newFlow = gs.nodesOpen.map { nd => ratesMap(nd) }.sum
@@ -67,24 +62,16 @@ object Day16 {
       )
     }
 
-    var maxTurn = 0
-
     case class Game() extends Graph[GameState, Int] {
       override def neighbours(edge: GameState): Seq[GameState] = {
-        if edge.turn > maxTurn then
-          maxTurn = edge.turn
-          println("New max turn: " + maxTurn)
-
-
         val meaningfulValves = if !edge.nodesOpen.contains(edge.position) && ratesMap(edge.position) > 0
         then Seq(openValve(edge))
         else Seq()
 
-        val meaningfulNeighbours = neighboursMap(edge.position).map { nb => moveTo(edge, nb) }.filterNot(visited)
+        val meaningfulNeighbours = neighboursMap(edge.position).map { nb => moveTo(edge, nb) }
+        val meaningfulMoves = (meaningfulValves ++ meaningfulNeighbours).filterNot(visited)
         // assume nbrs with higher flow come first
-        visited.addAll(meaningfulNeighbours)
-
-        val meaningfulMoves = meaningfulValves ++ meaningfulNeighbours
+        visited.addAll(meaningfulMoves)
 
         if meaningfulMoves.nonEmpty then meaningfulMoves else Seq(handleNextTurn(edge))
       }
@@ -106,19 +93,19 @@ object Day16 {
 
           p1.total.compareTo(p2.total)
         else
-          utilValue(p1).compareTo(utilValue(p2))
+          val res = utilValue(p1).compareTo(utilValue(p2))
+          if res == 0 then p1.endPoint.flow.compareTo(p2.endPoint.flow) else res
       }
     }
-    
-      val path = Search.findCheapestPath(new Game, startState, p => p.turn == 30, new GameStateOrdering()).get
-      path.reverseSteps.reverse.foreach { println }
-      val solution = path.reverseSteps.map(_.flow).sum
 
-      solution
-    }
+    val path = Search.findCheapestPath(new Game, startState, p => p.turn == 30, new GameStateOrdering()).get
+    val solution = path.reverseSteps.map(_.flow).sum
+
+    solution
+  } // 1376
 
   @main
-  def day16Part2 = printSolution {
+  def day16Part2 = printSolution { // TODO this needs to have search's visited total inverted
     case class GameState(nodesOpen: Set[String], positionMe: String, positionElefant: String, flow: Int, turn: Int) {
       lazy val bothIds = List(positionMe, positionElefant).sorted.mkString
       lazy val id = nodesOpen.mkString + "-" + bothIds + "-" + turn
@@ -176,7 +163,7 @@ object Day16 {
 
 
         val goodMoves = if (edge.flow == maxFlow) then {
-          println ("Max flow reached! " + edge)
+          println("Max flow reached! " + edge)
 
           Seq[GameState]()
         } else {
@@ -243,7 +230,13 @@ object Day16 {
       def compare(p1: Path[GameState], p2: Path[GameState]): Int = {
 
         def utilValue(p: Path[GameState]): Int = {
-          val remainingPotential = (26 - p.endPoint.turn) * maxFlow
+          // max remainingpotential:
+          // take current flow and assume each turn you can open 2 for 23
+          val rp = (p.endPoint.turn + 1 to 26).scanLeft(p.endPoint.flow) {
+            case (totalFlow, _) => Math.min(maxFlow, totalFlow + 26)
+          }.tail.sum
+
+          val remainingPotential = rp //(26 - p.endPoint.turn) * maxFlow
           p.total + remainingPotential
         }
 
@@ -253,17 +246,18 @@ object Day16 {
 
           p1.total.compareTo(p2.total)
         else
-          utilValue(p1).compareTo(utilValue(p2))
+          val res = utilValue(p1).compareTo(utilValue(p2))
+          if res == 0 then p1.endPoint.flow.compareTo(p2.endPoint.flow) else res
       }
     }
 
     val gs1 = GameState(Set(), "AA", "BB", 1, 1)
     val gs2 = GameState(Set(), "BB", "AA", 1, 1)
     val s = Set(gs1)
-    println ("-- " + s.contains(gs2))
+    println("-- " + s.contains(gs2))
 
 
-    val path = Search.findCheapestPath(new Game, startState, p => (p.turn == 26 || p.flow == maxFlow), new GameStateOrdering()).get
+    val path = Search.findCheapestPathGreedy(new Game, startState, p => (p.turn == 26 || p.flow == maxFlow), new GameStateOrdering()).get
     path.reverseSteps.reverse.foreach {
       println
     }
@@ -271,5 +265,5 @@ object Day16 {
 
     solution
 
-    }
+  } //1933
 }
