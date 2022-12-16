@@ -52,8 +52,8 @@ def split[T](seq: Seq[T], predicate: T => Boolean, includeSeparators: Boolean = 
     }
 }
 
-trait Graph[E, V] {
-  def neighbours(edge: E): Seq[E]
+trait Graph[V, E] {
+  def neighbours(vertex: V): Seq[V]
 
-  def value(edge: E): V
+  def value(edge: V): E
 }

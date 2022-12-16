@@ -34,11 +34,11 @@ object Countle {
 
   object CountleGraph extends Graph[CountleState, Boolean] {
 
-    def neighbours(edge: CountleState): Seq[CountleState] =
+    def neighbours(vertex: CountleState): Seq[CountleState] =
       // take all unique ordered pairs of 2 out of ints
       // combine with all operators, filter valid
       // create new states out of results
-      val uniquePairs = edge.ints.permutations.map(_.take(2)).distinct
+      val uniquePairs = vertex.ints.permutations.map(_.take(2)).distinct
       val validSteps = uniquePairs.flatMap { ps =>
         val i1 = ps.head
         val i2 = ps.last
@@ -50,11 +50,11 @@ object Countle {
       }.distinct
 
       validSteps.map { case (result, s) =>
-        val newInts = edge.ints.clone()
+        val newInts = vertex.ints.clone()
         newInts -= s.int1
         newInts -= s.int2
         newInts.addOne(result)
-        CountleState(newInts, s +: edge.reverseSteps)
+        CountleState(newInts, s +: vertex.reverseSteps)
       }.toSeq
 
     def value(edge: CountleState): Boolean = false // edge.reverseSteps.size
@@ -70,8 +70,8 @@ object Countle {
 
   @main
   def solve = {
-    val startState = CountleState(ListBuffer(75, 100, 50, 25, 4, 4), List())
-    val target = 476
+    val startState = CountleState(ListBuffer(75, 100, 25, 3, 8, 1), List())
+    val target = 646
 
     Search.findShortestPath(CountleGraph, startState, success(target)) match {
       case None => println("No Solution!")

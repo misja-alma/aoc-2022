@@ -46,6 +46,14 @@ def randomGrid(width: Int, height: Int): Grid[Int] = {
   val shortest = Search.findShortestPath(grid, start, _ == end)
   Grid.printBooleanGridWithPath(grid, shortest.get, cutEmptySpace = false)
 
+@main def testAllShortestPaths =
+  val vertices = List("A","B","C","D")
+  val adj = List(("A" -> "B", 1),("B" -> "C", 2),("C" -> "D", 3), ("A" -> "D", 2))
+  println (adj)
+
+  val solution = Search.findAllShortestPaths(vertices, adj)
+  println (solution)
+
 @main def testMaze =
   val (grid, start, end) = Grid.createMaze(30, 30)
   Grid.printBooleanGrid(grid, cutEmptySpace = false)

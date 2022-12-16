@@ -216,7 +216,7 @@ case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Poi
 
   override def value(point: Point): T = grid(point.y)(point.x)
 
-  override def neighbours(edge: Point): Seq[Point] = getNeighbours(this, edge)
+  override def neighbours(vertex: Point): Seq[Point] = getNeighbours(this, vertex)
 
   def update(point: Point, value: T): Unit = grid(point.y)(point.x) = value
 
@@ -278,7 +278,7 @@ class MapGrid[T: ClassTag](grid: mutable.Map[Point, T], defaultValue: T, getNeig
   
   override def value(point: Point): T = grid.get(point).getOrElse(defaultValue)
 
-  override def neighbours(edge: Point): Seq[Point] = getNeighbours(this, edge)
+  override def neighbours(vertex: Point): Seq[Point] = getNeighbours(this, vertex)
 
   def update(point: Point, value: T): Unit = grid.update(point, value)
 

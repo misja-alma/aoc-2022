@@ -63,17 +63,17 @@ object Day16 {
     }
 
     case class Game() extends Graph[GameState, Int] {
-      override def neighbours(edge: GameState): Seq[GameState] = {
-        val meaningfulValves = if !edge.nodesOpen.contains(edge.position) && ratesMap(edge.position) > 0
-        then Seq(openValve(edge))
+      override def neighbours(vertex: GameState): Seq[GameState] = {
+        val meaningfulValves = if !vertex.nodesOpen.contains(vertex.position) && ratesMap(vertex.position) > 0
+        then Seq(openValve(vertex))
         else Seq()
 
-        val meaningfulNeighbours = neighboursMap(edge.position).map { nb => moveTo(edge, nb) }
+        val meaningfulNeighbours = neighboursMap(vertex.position).map { nb => moveTo(vertex, nb) }
         val meaningfulMoves = (meaningfulValves ++ meaningfulNeighbours).filterNot(visited)
         // assume nbrs with higher flow come first
         visited.addAll(meaningfulMoves)
 
-        if meaningfulMoves.nonEmpty then meaningfulMoves else Seq(handleNextTurn(edge))
+        if meaningfulMoves.nonEmpty then meaningfulMoves else Seq(handleNextTurn(vertex))
       }
 
       override def value(edge: GameState): Int = edge.flow
@@ -105,7 +105,15 @@ object Day16 {
   } // 1376
 
   @main
-  def day16Part2 = printSolution { // TODO this needs to have search's visited total inverted
+  def day16Part2 = printSolution {
+    
+    // TODO proper algo:
+    // - make a list of all nodes and give them distance of 1 between
+    // - find all nodes with positive valve rates. Calculate all shortest paths between those in advance
+    // - create a reduced graph from these nodes, this is the one we'll use for search
+    // - states can have a path over which someone is moving
+    // - neighbours will create possible (shortest) paths once someone is at a valve
+
     case class GameState(nodesOpen: Set[String], positionMe: String, positionElefant: String, flow: Int, turn: Int) {
       lazy val bothIds = List(positionMe, positionElefant).sorted.mkString
       lazy val id = nodesOpen.mkString + "-" + bothIds + "-" + turn

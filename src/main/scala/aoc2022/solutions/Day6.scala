@@ -15,14 +15,12 @@ object Day6 {
   }
 
   @main
-  def day6Part1 = {
-    val solution = findMarkerIndex(4)
-    println(solution)
+  def day6Part1 = printSolution {
+    findMarkerIndex(4)
   }
 
   @main
-  def day6Part2 = {
-    val solution = findMarkerIndex(14)
-    println(solution)
+  def day6Part2 = printSolution {
+    findMarkerIndex(14)
   }
 }
