@@ -31,7 +31,7 @@ def randomGrid(width: Int, height: Int): Grid[Int] = {
 
 @main def testCheapestPath =
   val grid = randomGrid(12, 12)
-  val cheapest = Search.findCheapestPath(grid, Point(0, 0), Point(grid.width - 1, grid.height - 1))
+  val cheapest = Search.findCheapestPath(grid, Point(0, 0), _ == Point(grid.width - 1, grid.height - 1))
   println(cheapest)
   Grid.printGridWithPath(grid, cheapest.get.reverseSteps)
   val cheapestBf = cheapestPathBruteForce(grid, Point(0, 0), Point(grid.width - 1, grid.height - 1))
