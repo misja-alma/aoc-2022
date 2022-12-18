@@ -55,11 +55,11 @@ object Search {
   }
 
   /**
-   * Returns the cheapest path from startPoint to endPoint.
+   * Returns the cheapest path from startPoint to endPoint, by considering costs of travelling over edges.
    * Cost is the sum the values of the points in the grid, not counting the startPoint.
    * Note: the graph.neighbours function needs to take care of the fact if it wants to skip any visited nodes
    */
-  def findCheapestPath[V](grid: Graph[V, Int], startPoint: V, endCondition: V => Boolean,
+  def findCheapestPath[V](grid: WeightedGraph[V, Int], startPoint: V, endCondition: V => Boolean,
                           ordering: Ordering[Path[V]] = new CheapestPathFirstOrdering[V]()): Option[Path[V]] = {
     val startPath = Path[V](Seq(startPoint), 0, startPoint)
     // reverse ordering for Scala's pq; without special ordering it would put the largest in the head but we want the cheapest path
@@ -75,7 +75,8 @@ object Search {
         if best.isEmpty || p.total < best.get.total then best = Some(p)
       } else {
         grid.neighbours(p.endPoint).foreach { nb =>
-          val newTotal = p.total + grid.value(nb)
+          // So it should be a special graph with a method cost(a: V, b: V)
+          val newTotal = p.total + grid.cost(p.endPoint, nb)
           queue.enqueue(Path[V](nb +: p.reverseSteps, newTotal, nb))
         }
       }

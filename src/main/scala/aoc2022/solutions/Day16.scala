@@ -3,8 +3,10 @@ package aoc2022.solutions
 import aoc2022.utils.*
 import aoc2022.utils.Search.Path
 
+import scala.collection.immutable.BitSet
+
 object Day16 {
-  val sc = scannerFromResource("/test.txt")
+  val sc = scannerFromResource("/day16.txt")
   val lines = scannerToLines(sc)
 
   val nodes = lines.map { line =>
@@ -63,7 +65,7 @@ object Day16 {
       )
     }
 
-    case class Game() extends Graph[GameState, Int] {
+    case class Game() extends WeightedGraph[GameState, Int] {
       override def neighbours(vertex: GameState): Seq[GameState] = {
         val meaningfulValves = if !vertex.nodesOpen.contains(vertex.position) && ratesMap(vertex.position) > 0
         then Seq(openValve(vertex))
@@ -77,7 +79,9 @@ object Day16 {
         if meaningfulMoves.nonEmpty then meaningfulMoves else Seq(handleNextTurn(vertex))
       }
 
-      override def value(edge: GameState): Int = edge.flow
+      override def value(vertex: GameState): Int = vertex.flow
+
+      override def cost(from: GameState, to: GameState): Int = to.flow
     }
 
     class GameStateOrdering extends Ordering[Path[GameState]] {
@@ -105,174 +109,16 @@ object Day16 {
     solution
   } // 1376
 
-  @main
-  def day16Part2 = printSolution {
-
-
-    case class GameState(nodesOpen: Set[String], positionMe: String, positionElefant: String, flow: Int, turn: Int) {
-      lazy val bothIds = List(positionMe, positionElefant).sorted.mkString
-      lazy val id = nodesOpen.mkString + "-" + bothIds + "-" + turn
-
-      override def equals(obj: Any): Boolean = id.equals(obj.asInstanceOf[GameState].id)
-
-      override def hashCode(): Int = id.hashCode()
-    }
-
-    val startState = GameState(Set(), "AA", "AA", 0, 1)
-
-    val visited = scala.collection.mutable.Set[GameState]()
-    visited.add(startState)
-
-
-    def handleNextTurn(gs: GameState): GameState = {
-      val newFlow = gs.nodesOpen.map { nd => ratesMap(nd) }.sum
-      gs.copy(
-        flow = newFlow,
-        turn = gs.turn + 1
-      )
-    }
-
-    def openValve(gs: GameState, positionAt: String): GameState = {
-      val withFlow = handleNextTurn(gs)
-      withFlow.copy(
-        nodesOpen = withFlow.nodesOpen + positionAt,
-        flow = withFlow.flow + ratesMap(positionAt)
-      )
-    }
-
-    def openBothValves(gs: GameState): GameState = {
-      val withFlow = handleNextTurn(gs)
-      withFlow.copy(
-        nodesOpen = withFlow.nodesOpen + gs.positionMe + gs.positionElefant,
-        flow = withFlow.flow + ratesMap(gs.positionMe) + ratesMap(gs.positionElefant)
-      )
-    }
-
-    def moveTo(gs: GameState, me: String, elefant: String): GameState = {
-      val withFlow = handleNextTurn(gs)
-      withFlow.copy(
-        positionMe = me,
-        positionElefant = elefant
-      )
-    }
-
-    var maxTurn = 0
-
-    case class Game() extends Graph[GameState, Int] {
-      override def neighbours(edge: GameState): Seq[GameState] = {
-        if edge.turn > maxTurn then
-          maxTurn = edge.turn
-          println("New max turn: " + maxTurn)
-
-
-        val goodMoves = if (edge.flow == maxFlow) then {
-          println("Max flow reached! " + edge)
-
-          Seq[GameState]()
-        } else {
-
-          val meaningfulValvesMe = if !edge.nodesOpen.contains(edge.positionMe) && ratesMap(edge.positionMe) > 0
-          then Seq(openValve(edge, edge.positionMe))
-          else Seq()
-          val meaningfulValvesElefant = if !edge.nodesOpen.contains(edge.positionElefant) && ratesMap(edge.positionElefant) > 0
-          then Seq(openValve(edge, edge.positionElefant))
-          else Seq()
-
-          val moveCombinations =
-            for {
-              me <- neighboursMap(edge.positionMe)
-              elefant <- neighboursMap(edge.positionElefant)
-              newState = moveTo(edge, me, elefant)
-              if !visited(newState)
-            } yield newState
-
-          val moveMeValveCombinations =
-            for {
-              me <- neighboursMap(edge.positionMe)
-              elefant <- meaningfulValvesElefant
-              newState = elefant.copy(positionMe = me)
-              if !visited(newState)
-            } yield newState
-
-          val moveElefantValveCombinations =
-            for {
-              me <- meaningfulValvesMe
-              elefant <- neighboursMap(edge.positionElefant)
-              newState = me.copy(positionElefant = elefant)
-              if !visited(newState)
-            } yield newState
-
-          val valveValveCombinations =
-            for {
-              _ <- meaningfulValvesMe
-              _ <- meaningfulValvesElefant
-              if edge.positionMe != edge.positionElefant
-              newState = openBothValves(edge)
-              if !visited(newState)
-            } yield newState
-
-
-          val meaningfulMoves = (moveCombinations ++
-            moveMeValveCombinations ++
-            moveElefantValveCombinations ++
-            valveValveCombinations).distinct
-
-          // assume nbrs with higher flow come first
-          visited.addAll(meaningfulMoves)
-
-          meaningfulMoves.toSeq
-        }
-
-        if goodMoves.nonEmpty then goodMoves else Seq(handleNextTurn(edge))
-      }
-
-      override def value(edge: GameState): Int = edge.flow
-    }
-
-    class GameStateOrdering extends Ordering[Path[GameState]] {
-      def compare(p1: Path[GameState], p2: Path[GameState]): Int = {
-
-        def utilValue(p: Path[GameState]): Int = {
-          // max remainingpotential:
-          // take current flow and assume each turn you can open 2 for 23
-          val rp = (p.endPoint.turn + 1 to 26).scanLeft(p.endPoint.flow) {
-            case (totalFlow, _) => Math.min(maxFlow, totalFlow + 26)
-          }.tail.sum
-
-          val remainingPotential = rp //(26 - p.endPoint.turn) * maxFlow
-          p.total + remainingPotential
-        }
-
-        if p1.endPoint.turn == p2.endPoint.turn &&
-          p1.endPoint.bothIds == p2.endPoint.bothIds &&
-          p1.endPoint.nodesOpen == p2.endPoint.nodesOpen then
-
-          p1.total.compareTo(p2.total)
-        else
-          val res = utilValue(p1).compareTo(utilValue(p2))
-          if res == 0 then p1.endPoint.flow.compareTo(p2.endPoint.flow) else res
-      }
-    }
-
-    val gs1 = GameState(Set(), "AA", "BB", 1, 1)
-    val gs2 = GameState(Set(), "BB", "AA", 1, 1)
-    val s = Set(gs1)
-    println("-- " + s.contains(gs2))
-
-
-    val path = Search.findCheapestPathGreedy(new Game, startState, p => (p.turn == 26 || p.flow == maxFlow), new GameStateOrdering()).get
-    path.reverseSteps.reverse.foreach {
-      println
-    }
-    val solution = path.reverseSteps.map(_.flow).sum + (26 - path.endPoint.turn) * maxFlow
-
-    solution
-
-  } //1933
-
 
   @main
   def day16Part2Proper = printSolution {
+    def toIndex(node: String): Long = allNodes.indexOf(node).toLong
+    val nodesB = allNodes.map(toIndex).toArray
+
+    val neighboursMapB = nodes.map { case (n, _, tos) => toIndex(n) -> tos.map(toIndex) }.toMap
+    val ratesMapB = nodes.map { case (n, rate, _) => toIndex(n) -> rate }.toMap
+    val nodesSet = BitSet.fromBitMask(nodesB)   // TODO test bitset
+     // TODO check, what takes so long? It is the size of the queue or the mem size?
     
     val directConnections = neighboursMap.toList.flatMap { case (node, neighbours) =>
       neighbours.map { n => (node -> n, 1) }
@@ -330,18 +176,37 @@ object Day16 {
     }
 
     def combine(gsMe: GameState, gsElefant: GameState): GameState = {
-      val allOpen = gsMe.nodesOpen ++ gsElefant.nodesOpen
-      GameState(
-        nodesOpen = allOpen,
-        positions = List(gsMe.positions(ME), gsElefant.positions(ELEFANT)),
-        flow = allOpen.map(ratesMap).sum,
-        turn = gsMe.turn
-      )
+      val myStepsLeft = gsMe.positions(ME).stepsLeft
+      val elefantStepsLeft = gsElefant.positions(ELEFANT).stepsLeft
+      if  myStepsLeft > 0 && elefantStepsLeft > 0 then {
+      // both moving; skip intermediary moves
+        val turnsLeft = 26 - gsMe.turn - 1
+        val moveUp = Math.min(turnsLeft, Math.min(myStepsLeft, elefantStepsLeft))
+        // Note that both have already stepped 1 step but turn is not adjusted yet
+        val finalTurn = gsMe.turn + moveUp + 1
+        val myPos = gsMe.positions(ME).copy(stepsLeft = myStepsLeft - moveUp)
+        val elPos = gsElefant.positions(ELEFANT).copy(stepsLeft = elefantStepsLeft - moveUp)
+        GameState(
+          nodesOpen = gsMe.nodesOpen,
+          positions = List(myPos, elPos), 
+          flow = gsMe.flow,
+          turn = finalTurn
+        )
+      } else {
+        val allOpen = gsMe.nodesOpen ++ gsElefant.nodesOpen
+        val gs = GameState(
+          nodesOpen = allOpen,
+          positions = List(gsMe.positions(ME), gsElefant.positions(ELEFANT)),
+          flow = allOpen.map(ratesMap).sum,
+          turn = gsMe.turn
+        )
+        handleNextTurn(gs)
+      }
     }
 
     var maxTurn = 0
 
-    case class Game() extends Graph[GameState, Int] {
+    case class Game() extends WeightedGraph[GameState, Int] {
       override def neighbours(vertex: GameState): Seq[GameState] = {
         if vertex.turn > maxTurn then
           maxTurn = vertex.turn
@@ -366,10 +231,17 @@ object Day16 {
             else Seq()
           }
 
+          def other(who: Int): Int =
+            if who == ME then ELEFANT else ME
+
           def meaningfulStartMovings(who: Int): Seq[GameState] = {
             val position = vertex.positions(who)
+            val otherPosition = vertex.positions(other(who))
             if position.stepsLeft == 0 then
-              allClosedValves().filterNot(_ == position.goal).map { cv => startMovingTo(vertex, who, cv) }
+              allClosedValves()
+                .filterNot(_ == position.goal)
+                .map { cv => startMovingTo(vertex, who, cv) }
+                .filterNot { mv => otherPosition.goal == mv.positions(who).goal && otherPosition.stepsLeft < mv.positions(who).stepsLeft}
             else Seq()
           }
 
@@ -379,27 +251,30 @@ object Day16 {
             else Seq(stepFurther(vertex, who))
           }
 
-
           // make list of meaningful actions (as gamestates) for both players
           // then combine all of them; remove duplicate valve openings (take arbitrary one) and duplicate movings(?)
-          // apply current move stuff
-          // and filter already visited
-          // give gamestate a list of WalkingStates with named indices for me, elefant, so we need only 1 update method
-
           val myValveOpens = meaningfulValveOpens(ME)
-          val forMe = meaningfulMoves(ME) ++ meaningfulStartMovings(ME) ++ myValveOpens
           val elefantValveOpens =
             if vertex.positions(ME).goal == vertex.positions(ELEFANT).goal && myValveOpens.nonEmpty then Seq()
             else meaningfulValveOpens(ELEFANT)
-          val forElefant = meaningfulMoves(ELEFANT) ++
-            meaningfulStartMovings(ELEFANT) ++
-            elefantValveOpens
+
+          // consider only paths that directly switch on valves
+          // this is possible since we only consider direct paths to nodes now
+          // This also means that we can delete startMovings to wherever the other player will come first
+          val forMe = if (myValveOpens.nonEmpty) myValveOpens else {
+            meaningfulMoves(ME) ++ meaningfulStartMovings(ME)
+          }
+
+          val forElefant = if elefantValveOpens.nonEmpty then elefantValveOpens else {
+            meaningfulMoves(ELEFANT) ++ meaningfulStartMovings(ELEFANT)
+          }
 
           val allMoves = (for {
             mine <- forMe
             elefants <- forElefant
             combined = combine(mine, elefants)
-          } yield handleNextTurn(combined)).distinct.filterNot(visited)
+            // TODO would be nicer to create actions for each, and use combine to turn them into states or skip them
+          } yield combined).distinct.filterNot(visited)
 
           // assume nbrs with higher flow come first
           visited.addAll(allMoves)
@@ -411,6 +286,10 @@ object Day16 {
       }
 
       override def value(edge: GameState): Int = edge.flow
+
+      override def cost(from: GameState, to: GameState): Int = {
+        (to.turn - from.turn) * to.flow
+      }
     }
 
     class GameStateOrdering extends Ordering[Path[GameState]] {
@@ -439,9 +318,15 @@ object Day16 {
     path.reverseSteps.reverse.foreach {
       println
     }
-    val solution = path.reverseSteps.map(_.flow).sum + (26 - path.endPoint.turn) * maxFlow
+    val solution = path.reverseSteps.reverse.sliding(2, 1)
+      .map { ss =>
+        val first = ss.head
+        val second = ss.last
+        (second.turn - first.turn) * second.flow
+      }
+      .sum + (26 - path.endPoint.turn) * maxFlow
 
     solution
-  }
+  }  // 1933, takes 5 minutes and needs lots of heap
 }
 

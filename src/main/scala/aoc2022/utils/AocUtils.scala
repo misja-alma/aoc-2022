@@ -57,3 +57,7 @@ trait Graph[V, E] {
 
   def value(edge: V): E
 }
+
+trait WeightedGraph[V, E] extends Graph[V, E] {
+  def cost(from: V, to: V): E
+}
