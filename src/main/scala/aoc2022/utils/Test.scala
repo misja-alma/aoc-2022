@@ -92,3 +92,15 @@ def randomGrid(width: Int, height: Int): Grid[Int] = {
   println(res)
   val res2 = split(seq, x => x % 3 == 0, false)
   println(res2)
+
+@main def testBinarySearch =
+  val items = Array(-1,0,1,2,4,8,16)
+  println(Search.binarySearch(items, identity, 2))
+  println(Search.binarySearch(items, identity, -1))
+  println(Search.binarySearch(items, identity, -2))
+
+@main def testFindAllWith =
+  val items = Array(-1, 0, 1, 2, 4, 8, 8, 8, 8, 16)
+  println(Search.findAllWith(items, identity, 2))
+  println(Search.findAllWith(items, identity, 8))
+  println(Search.findAllWith(items, identity, 17))

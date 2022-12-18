@@ -14,28 +14,16 @@ object Day18 {
   val sortByX = points.sortBy(_.x).toArray
   val sortByY = points.sortBy(_.y).toArray
   val sortByZ = points.sortBy(_.z).toArray
-
-
+  
   def sidesUncovered(pt: Point3D): Int = {
-     val leftNeighbour = pt.copy(x = pt.x - 1)
-     val rightNeighbour = pt.copy(x = pt.x + 1)
-
-    val upNeighbour = pt.copy(z = pt.z - 1)
-    val downNeighbour = pt.copy(z = pt.z + 1)
-
-    val frontNeighbour = pt.copy(y = pt.y - 1)
-    val backNeighbour = pt.copy(y = pt.y + 1)
-
-    val covered = Seq(leftNeighbour, rightNeighbour, upNeighbour, downNeighbour, frontNeighbour, backNeighbour).count  { nb =>
-      pointSet.contains(nb)
-    }
+    val covered = pt.neighbours.count(pointSet)
     6 - covered
   }
 
   @main
   def day18Part1 = printSolution {
-      val uncovered = points.map(sidesUncovered)
-      uncovered.sum    // 4340
+    val uncovered = points.map(sidesUncovered)
+    uncovered.sum 
   }
 
   @main
@@ -55,16 +43,7 @@ object Day18 {
     }
 
     def validNeighbours(pt: Point3D): Seq[Point3D] = {
-      val leftNeighbour = pt.copy(x = pt.x - 1)
-      val rightNeighbour = pt.copy(x = pt.x + 1)
-
-      val upNeighbour = pt.copy(z = pt.z - 1)
-      val downNeighbour = pt.copy(z = pt.z + 1)
-
-      val frontNeighbour = pt.copy(y = pt.y - 1)
-      val backNeighbour = pt.copy(y = pt.y + 1)
-
-      Seq(leftNeighbour, rightNeighbour, upNeighbour, downNeighbour, frontNeighbour, backNeighbour).filter(isValid)
+      pt.neighbours.filter(isValid)
     }
 
     // fill with water:
@@ -80,12 +59,12 @@ object Day18 {
     for pt <- points do
       grid3D(pt.x)(pt.y)(pt.z) = 1
 
-    // make pts
+    // make water pts
     val edgePts = scala.collection.mutable.ListBuffer[Point3D]()
     for x <- 0 to maxX do
       for y <- 0 to maxY do
-        edgePts.append(Point3D(x,y,0))
-        edgePts.append(Point3D(x,y,maxZ))
+        edgePts.append(Point3D(x, y, 0))
+        edgePts.append(Point3D(x, y, maxZ))
       for z <- 0 to maxZ do
         edgePts.append(Point3D(x, 0, z))
         edgePts.append(Point3D(x, maxY, z))

@@ -1,5 +1,6 @@
 package aoc2022.utils
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
@@ -135,12 +136,12 @@ object Search {
       dist(iFrom)(iTo) = weight
     }
 
-    for v <- 0 until vertices.length do
+    for v <- vertices.indices do
       dist(v)(v) = 0
 
-    for k <- 0 until vertices.length do
-      for i <- 0 until vertices.length do
-        for j <- 0 until vertices.length do
+    for k <- vertices.indices do
+      for i <- vertices.indices do
+        for j <- vertices.indices do
           if (dist(i)(k) != Integer.MAX_VALUE && dist(k)(j) != Integer.MAX_VALUE) &&
             (dist(i)(j) == Integer.MAX_VALUE || dist(i)(j) > dist(i)(k) + dist(k)(j)) then
             dist(i)(j) = dist(i)(k) + dist(k)(j)
@@ -164,28 +165,32 @@ object Search {
    */
   def binarySearch[T](arr: Array[T],
                       searchF: T => Int,
-                      toSearch: Int)
-                     (iLow: Int = 0,
-                      iHigh: Int = arr.length - 1): Int = {
-    if (iLow > iHigh) {
-      -1
-    } else {
-      val iMiddle = iLow + (iHigh - iLow) / 2
+                      toSearch: Int): Int = {
+    @tailrec
+    def doSearch(iLow: Int,
+                 iHigh: Int): Int = {
+      if (iLow > iHigh) {
+        -1
+      } else {
+        val iMiddle = iLow + (iHigh - iLow) / 2
 
-      val fResult = searchF(arr(iMiddle))
-      if (fResult == toSearch) iMiddle
-      else if (fResult > toSearch) binarySearch(arr, searchF, toSearch)(iLow, iMiddle - 1)
-      else binarySearch(arr, searchF, toSearch)(iMiddle + 1, iHigh)
+        val fResult = searchF(arr(iMiddle))
+        if (fResult == toSearch) iMiddle
+        else if (fResult > toSearch) doSearch(iLow, iMiddle - 1)
+        else doSearch(iMiddle + 1, iHigh)
+      }
     }
+
+    doSearch(0, arr.length - 1)
   }
 
   /**
-   * Finds all, assumes array is sorted by searchF. 
+   * Finds all, returns interval in indices, assumes array is sorted by searchF.
    * Note: if ranges can be long, this method could be speed up by searching recursively for the range boundaries
    */
-  def findAllWith[T: ClassTag](arr: Array[T], searchF: T => Int, toSearch: Int): Array[T] = {
-    val i = binarySearch(arr, searchF, toSearch)()
-    if i < 0 then Array()
+  def findAllWith[T](arr: Array[T], searchF: T => Int, toSearch: Int): IInterval = {
+    val i = binarySearch(arr, searchF, toSearch)
+    if i < 0 then EmptyInterval
     else {
       var iLower = i
       while iLower > 0 && searchF(arr(iLower - 1)) == toSearch do
@@ -194,7 +199,7 @@ object Search {
       while (iHigher < arr.length - 1) && searchF(arr(iHigher + 1)) == toSearch do
         iHigher = iHigher + 1
 
-      arr.slice(iLower, iHigher + 1)
+      Interval(iLower, iHigher)
     }
   }
 }

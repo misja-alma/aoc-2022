@@ -33,7 +33,7 @@ object Grid {
    * Horizontal or vertical neighbours that are in the grid
    */
   def directNeighbours(grid: IGrid[?], point: Point): Seq[Point] = {
-    val raw = Seq(Point(point.x - 1, point.y), Point(point.x, point.y - 1), Point(point.x + 1, point.y), Point(point.x, point.y + 1))
+    val raw = point.neighbours
     grid.filterValid(raw)
   }
 
@@ -44,6 +44,7 @@ object Grid {
     val raw = for {
       px <- point.x - 1 to point.x + 1
       py <- point.y - 1 to point.y + 1
+      if px != point.x || py != point.y
     } yield Point(px, py)
 
     grid.filterValid(raw)
