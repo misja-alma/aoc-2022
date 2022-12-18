@@ -1,6 +1,7 @@
 package aoc2022.utils
 
 import scala.collection.mutable
+import scala.reflect.ClassTag
 
 object Search {
 
@@ -155,5 +156,45 @@ object Search {
 
       distPairs.flatten
     }.toMap
+  }
+
+  /**
+   * Returns the index of the element if found, otherwise -1
+   * Assumes array is sorted by searchF
+   */
+  def binarySearch[T](arr: Array[T],
+                      searchF: T => Int,
+                      toSearch: Int)
+                     (iLow: Int = 0,
+                      iHigh: Int = arr.length - 1): Int = {
+    if (iLow > iHigh) {
+      -1
+    } else {
+      val iMiddle = iLow + (iHigh - iLow) / 2
+
+      val fResult = searchF(arr(iMiddle))
+      if (fResult == toSearch) iMiddle
+      else if (fResult > toSearch) binarySearch(arr, searchF, toSearch)(iLow, iMiddle - 1)
+      else binarySearch(arr, searchF, toSearch)(iMiddle + 1, iHigh)
+    }
+  }
+
+  /**
+   * Finds all, assumes array is sorted by searchF. 
+   * Note: if ranges can be long, this method could be speed up by searching recursively for the range boundaries
+   */
+  def findAllWith[T: ClassTag](arr: Array[T], searchF: T => Int, toSearch: Int): Array[T] = {
+    val i = binarySearch(arr, searchF, toSearch)()
+    if i < 0 then Array()
+    else {
+      var iLower = i
+      while iLower > 0 && searchF(arr(iLower - 1)) == toSearch do
+        iLower = iLower - 1
+      var iHigher = i
+      while (iHigher < arr.length - 1) && searchF(arr(iHigher + 1)) == toSearch do
+        iHigher = iHigher + 1
+
+      arr.slice(iLower, iHigher + 1)
+    }
   }
 }
