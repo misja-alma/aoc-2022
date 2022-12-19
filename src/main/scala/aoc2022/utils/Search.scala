@@ -20,6 +20,7 @@ object Search {
    * Returns the cheapest path from startPoint to endPoint.
    * Cost is the sum the values of the points in the grid, not counting the startPoint.
    * Note: greedy algorithm; assumes that nodes that were visited already with lower total cost can always be preferred.
+   * TODO should use weighted graph, no point using graph.value
    */
   def findCheapestPathGreedy[V](grid: Graph[V, Int], startPoint: V, endCondition: V => Boolean,
                                 ordering: Ordering[Path[V]] = new CheapestPathFirstOrdering[V]()): Option[Path[V]] = {
@@ -58,6 +59,7 @@ object Search {
    * Returns the cheapest path from startPoint to endPoint, by considering costs of travelling over edges.
    * Cost is the sum the values of the points in the grid, not counting the startPoint.
    * Note: the graph.neighbours function needs to take care of the fact if it wants to skip any visited nodes
+   * TODO it's actually the most expensive path that is preferred, unless you use a reverse ordering
    */
   def findCheapestPath[V](grid: WeightedGraph[V, Int], startPoint: V, endCondition: V => Boolean,
                           ordering: Ordering[Path[V]] = new CheapestPathFirstOrdering[V]()): Option[Path[V]] = {

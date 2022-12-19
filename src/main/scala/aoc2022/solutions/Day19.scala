@@ -17,10 +17,11 @@ object Day19 {
   case class GameState(oresOpen: Int, claysOpen: Int, obsidiansOpen: Int, geodesOpen: Int,
                        ores: Int, clays: Int, obsidian: Int, geodes: Int, minutes: Int)
 
-  class GameStateOrdering extends Ordering[Path[GameState]] {
+  class GameStateOrdering(endMinute: Int, longTermFactor: Int) extends Ordering[Path[GameState]] {
     def compare(p1: Path[GameState], p2: Path[GameState]): Int = {
       def utility(gs: GameState): Int = {
-        gs.geodes + (24 - gs.minutes) * (gs.geodesOpen + 2)
+        val longTermPotential = longTermFactor * Math.max(0, endMinute - gs.minutes - 1) // NMaybe let depend on minutes left?
+        gs.geodes + (endMinute - gs.minutes) * gs.geodesOpen + longTermPotential
       }
 
       val ep1 = p1.endPoint
@@ -112,25 +113,24 @@ object Day19 {
     def cost(from: GameState, to: GameState): Int = to.geodes - from.geodes
   }
 
-  def maxNrGeodes(bluePrint: BluePrint): Int = {
+  def maxNrGeodes(bluePrint: BluePrint, startState: GameState = GameState(1, 0, 0, 0, 0, 0, 0, 0, 0), endMinute: Int = 24, longTermFactor: Int): Path[GameState] = {
     println ("---- Checking nr: " + bluePrint.nr)
     maxMinute = 0
 
-    val startState = GameState(1, 0, 0, 0, 0, 0, 0, 0, 0)
     val game = Game(bluePrint)
-    val ordering = new GameStateOrdering()
+    val ordering = new GameStateOrdering(endMinute, longTermFactor)
     visited.clear()
     visited.add(startState)
 
-    val path = Search.findCheapestPath(game, startState, s => s.minutes == 24, ordering)
-    path.get.total
+    val path = Search.findCheapestPath(game, startState, s => s.minutes == endMinute, ordering).get
+    path
   }
 
   @main
   def day19Part1 = printSolution {
-     val solutions = blueprints.map { bp => (bp, maxNrGeodes(bp)) }
+     val solutions = blueprints.map { bp => (bp, maxNrGeodes(bp, longTermFactor = 2)) }
      val solution = solutions .map {
-       case (bp, geodes) => bp.nr * geodes
+       case (bp, path) => bp.nr * path.total
      }.sum
 
      solution
@@ -138,7 +138,14 @@ object Day19 {
 
   @main
   def day19Part2 = printSolution {
+    val solutions = blueprints.take(3).map { bp => (bp, maxNrGeodes(bp, endMinute = 32, longTermFactor = 5).total) }
 
+    val solution = solutions.map {
+      case (bp, geodes) =>
+        println ("nr: " + bp.nr + ", geodes: " + geodes)
+        geodes
+    }.product
 
+    solution
   }
 }
