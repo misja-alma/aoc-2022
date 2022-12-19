@@ -7,7 +7,7 @@ object Day19 {
   val sc = scannerFromResource("/day19.txt")
   val lines = scannerToLines(sc)
 
-  case class BluePrint(nr: Int, oreOre: Int, clayOre: Int, obisidianOre: Int, obsidianClay: Int, geodeOre: Int, geodeObsidian: Int)
+  case class BluePrint(nr: Int, oreOre: Int, clayOre: Int, obsidianOre: Int, obsidianClay: Int, geodeOre: Int, geodeObsidian: Int)
 
   val blueprints = lines.map {
     case s"Blueprint $nr: Each ore robot costs $oreOre ore. Each clay robot costs $clayOre ore. Each obsidian robot costs $obsidianOre ore and $obsidianClay clay. Each geode robot costs $geodeOre ore and $geodeObsidian obsidian." =>
@@ -74,9 +74,9 @@ object Day19 {
         Some(withBuy)
       } else None
 
-      val buyObsidians = if (newOres >= bluePrint.obisidianOre && newClays >= bluePrint.obsidianClay) {
+      val buyObsidians = if (newOres >= bluePrint.obsidianOre && newClays >= bluePrint.obsidianClay) {
         val withBuy = vertex.copy(
-          ores = newOres - bluePrint.obisidianOre,
+          ores = newOres - bluePrint.obsidianOre,
           clays = newClays - bluePrint.obsidianClay,
           obsidiansOpen = vertex.obsidiansOpen + 1,
           obsidian = newObsidian, geodes = newGeodes, minutes = vertex.minutes + 1)
@@ -114,6 +114,7 @@ object Day19 {
 
   def maxNrGeodes(bluePrint: BluePrint): Int = {
     println ("---- Checking nr: " + bluePrint.nr)
+    maxMinute = 0
 
     val startState = GameState(1, 0, 0, 0, 0, 0, 0, 0, 0)
     val game = Game(bluePrint)
