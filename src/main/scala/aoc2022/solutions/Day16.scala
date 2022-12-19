@@ -111,7 +111,7 @@ object Day16 {
 
 
   @main
-  def day16Part2Proper = printSolution {
+  def day16Part2 = printSolution {
     def toIndex(node: String): Long = allNodes.indexOf(node).toLong
     val nodesB = allNodes.map(toIndex).toArray
 
