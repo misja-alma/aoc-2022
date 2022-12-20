@@ -81,7 +81,7 @@ object Day7 {
   val rootWithSizes = addSizes(graphRoot)
 
   @main
-  def day7Part1 = {
+  def day7Part1 = printSolution {
 
     def sumSizesUptoMax(graph: DirGraph, maxSize: Long): Long = {
       // don't count root dir
@@ -91,11 +91,11 @@ object Day7 {
     }
 
     val solution = sumSizesUptoMax(rootWithSizes, 100000)
-    println("Solution: " + solution)
+    solution
   }
 
   @main
-  def day7Part2 = {
+  def day7Part2 = printSolution {
     val currentFree = 70000000 - rootWithSizes.size
     val tobeFreed = 30000000 - currentFree
 
@@ -105,6 +105,6 @@ object Day7 {
 
     val allDirs = allDirChildren(rootWithSizes)
     val solution = allDirs.filter(_.size >= tobeFreed).minBy(_.size)
-    println("Solution: " + solution.size)
+    solution.size
   }
 }

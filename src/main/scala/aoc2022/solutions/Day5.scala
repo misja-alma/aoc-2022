@@ -29,7 +29,7 @@ object Day5 {
   }
 
   @main
-  def day5Part1 = {
+  def day5Part1 = printSolution {
 
     def applyMove(ss: List[List[String]], mv: Move): List[List[String]] = {
       val oldFrom = ss(mv.from - 1)
@@ -49,11 +49,11 @@ object Day5 {
     }
 
     val solution = finalStacks.map(_.head).map(toCrate).mkString
-    println(solution)
+    solution
   }
 
   @main
-  def day5Part2 = {
+  def day5Part2 = printSolution {
 
     def applyMove(ss: List[List[String]], mv: Move): List[List[String]] = {
       val oldFrom = ss(mv.from - 1)
@@ -73,7 +73,7 @@ object Day5 {
     }
 
     val solution = finalStacks.map(_.head).map(toCrate).mkString
-    println(solution)
+    solution
   }
 
 }

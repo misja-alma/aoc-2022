@@ -12,7 +12,7 @@ object Day2 {
 
 
   @main
-  def day2Part1 = {
+  def day2Part1 = printSolution {
 
     import RPS.*
 
@@ -51,12 +51,11 @@ object Day2 {
       score(opp, me)
     }
 
-    val solution = scores.sum
-    println(solution)
+    scores.sum
   }
 
   @main
-  def day2Part2 = {
+  def day2Part2 = printSolution {
 
     import RPS.*
 
@@ -97,7 +96,6 @@ object Day2 {
       score(opp, outcome)
     }
 
-    val solution = scores.sum
-    println(solution)
+    scores.sum
   }
 }

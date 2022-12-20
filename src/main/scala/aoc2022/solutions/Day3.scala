@@ -7,7 +7,7 @@ object Day3 {
     if c > 'Z' then c - 'a' + 1 else c - 'A' + 1 + 26
 
   @main
-  def day3Part1 = {
+  def day3Part1 = printSolution {
     val sc = scannerFromResource("/day3.txt")
     val lines = scannerToLines(sc)
 
@@ -21,11 +21,11 @@ object Day3 {
     }
 
     val solutions = sharedChars.map(charScore)
-    println(solutions.sum)
+    solutions.sum
   }
 
   @main
-  def day3Part2 = {
+  def day3Part2 = printSolution {
     val sc = scannerFromResource("/day3.txt")
     val lines = scannerToLines(sc)
 
@@ -35,6 +35,6 @@ object Day3 {
     }
 
     val solutions = sharedChars.map(charScore)
-    println(solutions.sum)
+    solutions.sum
   }
 }

@@ -1,6 +1,7 @@
 package aoc2022.solutions
 
 import aoc2022.utils.*
+import scala.collection.mutable.ListBuffer
 
 object Day18 {
   val sc = scannerFromResource("/day18.txt")
@@ -60,7 +61,7 @@ object Day18 {
       grid3D(pt.x)(pt.y)(pt.z) = 1
 
     // make water pts
-    val edgePts = scala.collection.mutable.ListBuffer[Point3D]()
+    val edgePts = ListBuffer[Point3D]()
     for x <- 0 to maxX do
       for y <- 0 to maxY do
         edgePts.append(Point3D(x, y, 0))

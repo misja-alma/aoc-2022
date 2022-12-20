@@ -2,8 +2,6 @@ package aoc2022.solutions
 
 import aoc2022.utils.*
 
-import scala.collection.mutable.ListBuffer
-
 object Day9 {
   val sc = scannerFromResource("/day9.txt")
   val lines = scannerToLines(sc)
@@ -55,18 +53,16 @@ object Day9 {
   }
 
   @main
-  def day9Part1 = {
+  def day9Part1 = printSolution {
     val followers = List(Point(0, 0))
     val finalState = traverseRoute(State(Point(0, 0), followers, Set(Point(0, 0))))
-    val solution = finalState.visited.size
-    println ("Solution: " + solution)
+    finalState.visited.size
   }
 
   @main
-  def day9Part2 = {
+  def day9Part2 = printSolution {
     val followers = List.fill(9)(Point(0, 0))
     val finalState = traverseRoute(State(Point(0, 0), followers, Set(Point(0, 0))))
-    val solution = finalState.visited.size
-    println("Solution: " + solution)
+    finalState.visited.size
   }
 }

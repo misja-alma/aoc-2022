@@ -10,7 +10,7 @@ object Day8 {
   val cols = grid.columns
 
   @main
-  def day8Part1 = {
+  def day8Part1 = printSolution {
     val visibleGrid = Grid.withDimensions(rows.size, rows.head.size, initialValue = false)
 
     rows.zipWithIndex.foreach { (line, row) =>
@@ -37,12 +37,11 @@ object Day8 {
       }
     }
 
-    val solution = visibleGrid.count(_ == true)
-    println("Solution: " + solution)
+    visibleGrid.count(_ == true)
   }
 
   @main
-  def day8Part2 = {
+  def day8Part2 = printSolution {
     val products = grid.allPoints.map { case point@Point(col, row) =>
       val subject = grid.value(point)
 
@@ -66,7 +65,6 @@ object Day8 {
       vUp * vDown * vLeft * vRight
     }
 
-    val solution = products.max
-    println ("Solution: " + solution)
+    products.max
   }
 }
