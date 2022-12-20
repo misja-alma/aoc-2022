@@ -79,16 +79,16 @@ object Day11 {
 
 
   @main
-  def day11Part1 = {
+  def day11Part1 = printSolution {
       val (_, inspected) = calculateRounds(startMonkeys, 20, _ / 3)
 
       val highest = inspected.toList.sorted.reverse.take(2)
       val solution = highest(0) * highest(1)
-      println ("Solution: " + solution)
+      solution
   }
 
   @main
-  def day11Part2 = {
+  def day11Part2 = printSolution {
     val allDivisors = startMonkeys.map(_.testDivisor)
     val product = allDivisors.product
 
@@ -96,6 +96,6 @@ object Day11 {
 
     val highest = inspected.toList.sorted.reverse.take(2)
     val solution = highest(0) * highest(1)
-    println("Solution: " + solution)
+    solution
   }
 }

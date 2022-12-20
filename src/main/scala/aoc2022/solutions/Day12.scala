@@ -21,19 +21,19 @@ object Day12 {
   val end = graph.findPoint(_ == 'E').get
 
   @main
-  def day12Part1 = {
+  def day12Part1 = printSolution {
     val result = Search.findShortestPath[Point](graph, start, _ == end)
-    println("Solution: " + (result.get.size - 1))
+    result.get.size - 1
   }
 
   @main
-  def day12Part2 = {
+  def day12Part2 = printSolution {
     val allStartingPoints = graph.allPoints.filter { p => graph.value(p) == 'a' }
     val shortestPaths = allStartingPoints.flatMap { sp =>
       Search.findShortestPath[Point](graph, sp, _ == end)
     }
     val shortest = shortestPaths.minBy(_.size)
 
-    println("Solution: " + (shortest.size - 1))
+    shortest.size - 1
   }
 }

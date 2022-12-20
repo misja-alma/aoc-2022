@@ -36,13 +36,13 @@ object Day10 {
   }
 
   @main
-  def day10Part1 = {
+  def day10Part1 = printSolution {
     val toCheck = Seq(20, 60, 100, 140, 180, 220)
     val solution = toCheck.map { nr =>
       nr * finalValues(nr - 1)
     }.sum
 
-    println("Solution: " + solution)
+    solution
   }
 
   @main

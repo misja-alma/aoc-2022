@@ -75,17 +75,17 @@ object Day13 {
 
 
   @main
-  def day13Part1 = {
+  def day13Part1 = printSolution {
     val correct = couples.zipWithIndex.filter { case ((l1, l2), _) =>
       comparePackets(l1, l2) == IN_ORDER
     }
 
     val solution = correct.map { case (_, i) => i + 1}.sum
-    println ("Solution: " + solution)
+    solution
   }
 
   @main
-  def day13Part2 = {
+  def day13Part2 = printSolution {
     val packetComparator = new Ordering[IntListType] {
       override def compare(x: IntListType, y: IntListType): Int = comparePackets(x, y)
     }
@@ -95,6 +95,6 @@ object Day13 {
     val sorted = allPackets.sorted(packetComparator)
     val indices = dividerPackets.map { k => sorted.indexOf(k) + 1 }
     val solution = indices.product
-    println ("Solution: " + solution)
+    solution
   }
 }

@@ -65,14 +65,14 @@ object Day14 {
 
 
   @main
-  def day14Part1 = {
+  def day14Part1 = printSolution {
     val solution = dropSandUntil(pt => pt.y == bottom.y - 1) - 1
-    println ("Solution: " + solution)
+    solution
   }
 
   @main
-  def day14Part2 = {
+  def day14Part2 = printSolution {
     val solution = dropSandUntil(pt => pt.x == 500 && pt.y == 0)
-    println("Solution: " + solution)
+    solution
   }
 }
