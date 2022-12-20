@@ -35,7 +35,6 @@ object Day11 {
       case Square() => x => x * x
       case Plus(term) => _ + term
       case Multiply(factor) => _ * factor
-      case _ => sys.error("Unknown operation: " + op)
     }
   }
 

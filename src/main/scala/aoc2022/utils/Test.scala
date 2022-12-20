@@ -5,20 +5,22 @@ import aoc2022.utils.Search.Path
 import scala.util.Random
 
 // NOTE: not entirely correct, steps only right or down
-def cheapestPathBruteForce(g: Graph[Point, Int], from: Point, to: Point): Path[Point] = {
+def cheapestPathBruteForce(g: WeightedGraph[Point, Int], from: Point, to: Point): Path[Point] = {
   def doFindCp(from: Point): Path[Point] = {
-   if from == to then Path(Seq(to), g.value(from), to)
+   if from == to then Path(Seq(to), 0, to)
    else
-    val fromHere = g.neighbours(from)
+    val (nbCost, fromHere) = g.neighbours(from)
       .filter (p => p.x > from.x || p.y > from.y)
-      .map { nb => doFindCp(nb) }.minBy(_.total)
-    fromHere.copy(reverseSteps = from +: fromHere.reverseSteps, total = fromHere.total + g.value(from))
+      .map { nb =>
+        val costToNeighbour = g.cost(from, nb)
+        (costToNeighbour, doFindCp(nb))
+      }.minBy { case (cost, result) => cost + result.total }
+    fromHere.copy(reverseSteps = from +: fromHere.reverseSteps, total = fromHere.total + nbCost)
   }
 
   val result = doFindCp(from)
   val reversedSteps = result.reverseSteps.reverse
-  val step1Cost = g.value(result.reverseSteps.head)
-  result.copy(reverseSteps = reversedSteps, total = result.total - step1Cost)
+  result.copy(reverseSteps = reversedSteps) 
 }
 
 def randomGrid(width: Int, height: Int): Grid[Int] = {

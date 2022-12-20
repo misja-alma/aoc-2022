@@ -54,8 +54,6 @@ def split[T](seq: Seq[T], predicate: T => Boolean, includeSeparators: Boolean = 
 
 trait Graph[V, E] {
   def neighbours(vertex: V): Seq[V]
-
-  def value(edge: V): E
 }
 
 trait WeightedGraph[V, E] extends Graph[V, E] {

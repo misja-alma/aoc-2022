@@ -108,8 +108,6 @@ object Day19 {
       filtered
     }
 
-    def value(edge: GameState): Int = edge.geodes // TODO not used?
-
     def cost(from: GameState, to: GameState): Int = to.geodes - from.geodes
   }
 

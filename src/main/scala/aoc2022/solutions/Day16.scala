@@ -79,8 +79,6 @@ object Day16 {
         if meaningfulMoves.nonEmpty then meaningfulMoves else Seq(handleNextTurn(vertex))
       }
 
-      override def value(vertex: GameState): Int = vertex.flow
-
       override def cost(from: GameState, to: GameState): Int = to.flow
     }
 
@@ -284,8 +282,6 @@ object Day16 {
 
         if goodMoves.nonEmpty then goodMoves else Seq(handleNextTurn(vertex))
       }
-
-      override def value(edge: GameState): Int = edge.flow
 
       override def cost(from: GameState, to: GameState): Int = {
         (to.turn - from.turn) * to.flow

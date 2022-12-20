@@ -194,7 +194,7 @@ object Grid {
   }
 }
 
-trait IGrid[T: ClassTag] extends Graph[Point, T] {
+trait IGrid[T: ClassTag] extends WeightedGraph[Point, T] {
   def filterValid(pts: Seq[Point]): Seq[Point]
 
   def allPoints: Seq[Point]
@@ -202,9 +202,12 @@ trait IGrid[T: ClassTag] extends Graph[Point, T] {
   def width: Int
 
   def height: Int
+
+  def value(point: Point): T
 }
 
 /**
+ * Implements WeightedGraph where cost(a,b) is simply value(b)
  *
  * @param grid main array contains the rows, subArrays the columns.
  * @param getNeighbours returns all non-blocked neighbours for a point. Default is all horizontal/vertical ones.
@@ -216,6 +219,8 @@ case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Poi
   override def height: Int = grid.length
 
   override def value(point: Point): T = grid(point.y)(point.x)
+
+  override def cost(from: Point, to: Point): T = grid(to.y)(to.x)
 
   override def neighbours(vertex: Point): Seq[Point] = getNeighbours(this, vertex)
 
@@ -265,6 +270,9 @@ case class Grid[T: ClassTag](grid: Array[Array[T]], getNeighbours: (Grid[T], Poi
   }
 }
 
+/**
+ * Implements WeightedGraph where cost(a,b) is simply value(b)
+ */
 class MapGrid[T: ClassTag](grid: mutable.Map[Point, T], defaultValue: T, getNeighbours: (MapGrid[T], Point) => Seq[Point] = Grid.directNeighbours) extends IGrid[T] {
 
   override def width: Int = {
@@ -277,7 +285,9 @@ class MapGrid[T: ClassTag](grid: mutable.Map[Point, T], defaultValue: T, getNeig
     allY.max - allY.min + 1
   }
   
-  override def value(point: Point): T = grid.get(point).getOrElse(defaultValue)
+  override def value(point: Point): T = grid.getOrElse(point, defaultValue)
+
+  override def cost(from: Point, to: Point): T = grid.getOrElse(to, defaultValue)
 
   override def neighbours(vertex: Point): Seq[Point] = getNeighbours(this, vertex)
 

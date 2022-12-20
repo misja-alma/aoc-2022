@@ -70,8 +70,8 @@ object Countle {
 
   @main
   def solve = {
-    val startState = CountleState(ListBuffer(75, 100, 25, 3, 8, 1), List())
-    val target = 646
+    val startState = CountleState(ListBuffer(75, 100, 50, 25, 4, 10), List())
+    val target = 509
 
     Search.findShortestPath(CountleGraph, startState, success(target)) match {
       case None => println("No Solution!")
