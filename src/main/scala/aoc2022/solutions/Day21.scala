@@ -23,7 +23,7 @@ object Day21 {
       case "-" => Minus
       case "/" => Divide
       case "*" => Multiply
-      case _ => sys.error("Can't parse operaion " + op)
+      case _ => sys.error("Can't parse operation " + op)
     }
 
   def parseMonkey(op: String): Monkey = op match {
@@ -42,7 +42,6 @@ object Day21 {
 
   case class Monkey(name: String, var value: Option[Long], children: Seq[String], operation: Option[Operation])
 
-
   def evaluate(monkey: Monkey): Unit = {
       if monkey.value.isEmpty then
         val monkeyChildren = monkey.children.map(monkeyMap)
@@ -50,7 +49,6 @@ object Day21 {
         val newValue = apply(monkey.operation.get, monkeyChildren.head.value.get, monkeyChildren.last.value.get)
         monkey.value = Some(newValue)
   }
-
 
   val monkeys = lines.map(parseMonkey)
   val monkeyMap = monkeys.map { monkey => monkey.name -> monkey }.toMap
@@ -138,7 +136,7 @@ object Day21 {
 
     // for each branch: make sure the humn branch equals the other branch
     // this means making it larger or smaller by some term
-    
+
     val diff = if isHumnInBranch(childA) then childB.value.get - childA.value.get else childA.value.get - childB.value.get
     val solution = findValueForHumn(diff, childA)
     solution

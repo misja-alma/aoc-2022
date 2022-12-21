@@ -11,13 +11,13 @@ object Day10 {
   val addx = """addx (-?\d+)""".r
 
   enum Output:
-    case Noop() extends Output
+    case Noop extends Output
     case AddX(add: Int) extends Output
     
   import Output._
 
   def parseOutput(s: String): Output = s.trim() match {
-    case noop() => Noop()
+    case noop() => Noop
     case addx(target) => AddX(target.toInt)
     case _ => sys.error("Cant parse: " + s)
   }
@@ -28,7 +28,7 @@ object Day10 {
 
   val State(finalX, finalValues) = ops.foldLeft(State(1, List())) { (st, op) =>
     op match
-      case Noop() =>
+      case Noop =>
         State(st.x, st.cycleValues :+ st.x)
       case AddX(n: Int) =>
         val newX = st.x + n

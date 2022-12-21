@@ -8,9 +8,9 @@ object Day7 {
 
   enum Output:
     case CdRelative(target: String) extends Output
-    case CdRoot() extends Output
-    case CdUp() extends Output
-    case Ls() extends Output
+    case CdRoot extends Output
+    case CdUp extends Output
+    case Ls extends Output
     case File(name: String, size: Long) extends Output
     case Directory(name: String) extends Output
 
@@ -24,10 +24,10 @@ object Day7 {
   val dir =  """dir ([a-zA-Z\.]+)$""".r
 
   def parseOutput(s: String): Output = s.trim() match {
-    case cdup() => CdUp()
+    case cdup() => CdUp
     case cdrel(target) => CdRelative(target)
-    case cdroot() => CdRoot()
-    case ls() => Ls()
+    case cdroot() => CdRoot
+    case ls() => Ls
     case file(size, name) => File(name, size.toLong)
     case dir(name) => Directory(name)
     case _ => sys.error(s"Cant parse: $s")
@@ -47,13 +47,13 @@ object Day7 {
     case (current, CdRelative(target)) =>
       current.children.find(c => c.isDir && c.name == target).get
 
-    case (current, CdUp()) =>
+    case (current, CdUp) =>
       current.parent.get
 
-    case (current, CdRoot()) =>
+    case (current, CdRoot) =>
       findRootDir(current)
 
-    case (current, Ls()) =>
+    case (current, Ls) =>
       current
 
     case (current, File(name, size)) =>

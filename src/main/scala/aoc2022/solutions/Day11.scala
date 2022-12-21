@@ -19,12 +19,12 @@ object Day11 {
   enum Operation:
     case Plus(term: Int) extends Operation
     case Multiply(factor: Int) extends Operation
-    case Square() extends Operation
+    case Square extends Operation
 
   import Operation.*
 
   def parseOperation(op: String): Operation = op match {
-    case square() => Square()
+    case square() => Square
     case plus(target) => Plus(target.toInt)
     case multiply(target) => Multiply(target.toInt)
     case _ => sys.error("Cant parse: " + op)
@@ -32,7 +32,7 @@ object Day11 {
 
   def toFunction(op: Operation): BigInt => BigInt = {
     op match {
-      case Square() => x => x * x
+      case Square => x => x * x
       case Plus(term) => _ + term
       case Multiply(factor) => _ * factor
     }
