@@ -8,10 +8,13 @@ object Day22 {
 
   val mapDirections: Seq[Seq[String]] = split(lines, line => line.trim.isEmpty)
   val pointsMap = mapDirections.head.zipWithIndex.flatMap { case (line, row) =>
-    line.zipWithIndex.map { case (char, col) =>
-      Point(col, row) -> char
+    line.zipWithIndex.flatMap { case (char, col) =>
+      if char != ' ' then Some(Point(col, row) -> char) else None
     }
   }.toMap
+
+  val grid = Grid.fromPoints(pointsMap.filterNot(_._2 == '.').keys.toSeq)
+
 
   val directions = mapDirections.last.head
 
@@ -20,7 +23,7 @@ object Day22 {
   case class State(position: Point, direction: Char, lastMove: String)
 
   def move(position: Point, direction: Char, distance: Int): Point = {
-    direction match {
+    val result = direction match {
       case 'R' =>
         var finalX = position.x
         var blocked = false
@@ -119,6 +122,22 @@ object Day22 {
         position.copy(y = finalY)
       case _ => sys.error("Wrong facing: " + direction)
     }
+//    println (s"---- Move from $position direction $direction distance $distance ----")
+//
+//    Grid.printBooleanGridWithPath(grid, createPath(position, result))
+//
+//    println()
+    result
+  }
+
+  def createPath(from: Point, to: Point): Seq[Point] = {
+    if from.x != to.x then
+      (from.x to to.x by Math.signum(to.x - from.x).toInt).map { x => Point(x, from.y)}
+    else
+      if from.y != to.y then
+        (from.y to to.y by Math.signum(to.y - from.y).toInt).map { y => Point(from.x, y)}
+      else
+        Seq(from)
   }
 
   def turnLeft(direction: Char): Char =
@@ -146,14 +165,14 @@ object Day22 {
           // move in last direction
           val distance = state.lastMove.toInt
           move(state.position, state.direction, distance)
-        } else state.position
+        } else sys.error("No alternation")
         state.copy(direction = turnLeft(state.direction), position = ptAfterMove, lastMove = "")
       case 'R' =>
         val ptAfterMove = if state.lastMove.nonEmpty then {
           // move in last direction
           val distance = state.lastMove.toInt
           move(state.position, state.direction, distance)
-        } else state.position
+        } else sys.error("No alternation")
         state.copy(direction = turnRight(state.direction), position = ptAfterMove, lastMove = "")
       case _ => state.copy(lastMove = state.lastMove :+ turn)
     }
@@ -172,12 +191,14 @@ object Day22 {
       case _ => sys.error("Wrong facing: " + direction)
     }
 
+
   @main
   def day22Part1 = printSolution {
     val State(finalPt, finalDir, _) = finalState
-    val solution = 1000 * (finalPt.y + 1) + 4 * (finalPt.x + 1) + facing(finalDir)
+    println (finalState)
+    val solution = 1000L * (finalPt.y + 1) + 4 * (finalPt.x + 1) + facing(finalDir)
     solution
-  }// 98226
+  }// 88226
 
   @main
   def day22Part2 = printSolution {
