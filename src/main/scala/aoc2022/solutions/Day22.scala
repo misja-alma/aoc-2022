@@ -3,7 +3,7 @@ package aoc2022.solutions
 import aoc2022.utils.*
 
 object Day22 {
-  val sc = scannerFromResource("/test22.txt")
+  val sc = scannerFromResource("/day22.txt")
   val lines = scannerToLines(sc)
 
   val mapDirections: Seq[Seq[String]] = split(lines, line => line.trim.isEmpty)
@@ -190,57 +190,33 @@ object Day22 {
   @main
   def day22Part2 = printSolution {
     // orientation: nr of turns the face has to be turned right wrt face 1 to fit in the cube
-    case class Face(id: Int, orientation: Int, xOffset: Int, yOffset: Int, nbMap: Map[Char, Int])
+    // nbMap: 1st is neighbour, 2nd is relative orientation of that neighbour
+    case class Face(id: Int, orientation: Int, xOffset: Int, yOffset: Int, nbMap: Map[Char, (Int, Int)])
     // 12
     // 4
     //35
     //6
     // NOTE: urdl are from the perspective of the face itself! So the direction in the map
     val realFaces = Seq(
-      Face(1, 0, 50, 0, Map('U' -> 6, 'R' -> 2, 'D' -> 4, 'L' -> 3)),
-      Face(2, 0, 100, 0, Map('U' -> 6, 'R' -> 5, 'D' -> 4, 'L' -> 1)),
-      Face(3, 2, 0, 100, Map('U' -> 4, 'R' -> 5, 'D' -> 6, 'L' -> 1)),
-      Face(4, 0, 50, 50, Map('U' -> 1, 'R' -> 2, 'D' -> 5, 'L' -> 3)),
-      Face(5, 2, 50, 100, Map('U' -> 4, 'R' -> 2, 'D' -> 6, 'L' -> 3)),
-      Face(6, 3, 0, 150, Map('U' -> 3, 'R' -> 5, 'D' -> 2, 'L' -> 1))
+      Face(1, 0, 50, 0, Map('U' -> (6,3), 'R' -> (2,0), 'D' -> (4,0), 'L' -> (3,2))),
+      Face(2, 0, 100, 0, Map('U' -> (6,0), 'R' -> (5,2), 'D' -> (4,3), 'L' -> (1,0))),
+      Face(3, 2, 0, 100, Map('U' -> (4,3), 'R' -> (5,0), 'D' -> (6,0), 'L' -> (1,2))),
+      Face(4, 0, 50, 50, Map('U' -> (1,0), 'R' -> (2,1), 'D' -> (5,0), 'L' -> (3,1))),
+      Face(5, 2, 50, 100, Map('U' -> (4,0), 'R' -> (2,2), 'D' -> (6,3), 'L' -> (3,0))),
+      Face(6, 3, 0, 150, Map('U' -> (3,0), 'R' -> (5,1), 'D' -> (2,0), 'L' -> (1,1)))
     ).map { f => f.id -> f }.toMap
 
-
-    //  1
-    //234
-    //  56
-    val testFaces = Seq(
-      Face(1, 0, 8, 0, Map('U' -> 2, 'R' -> 6, 'D' -> 4, 'L' -> 3)),
-      Face(2, 2, 0, 4, Map('U' -> 1, 'R' -> 3, 'D' -> 5, 'L' -> 6)),
-      Face(3, 1, 4, 4, Map('U' -> 1, 'R' -> 4, 'D' -> 5, 'L' -> 2)),
-      Face(4, 0, 8, 4, Map('U' -> 1, 'R' -> 6, 'D' -> 5, 'L' -> 3)),
-      Face(5, 2, 8, 8, Map('U' -> 4, 'R' -> 6, 'D' -> 2, 'L' -> 3)),
-      Face(6, 2, 12, 8, Map('U' -> 4, 'R' -> 1, 'D' -> 2, 'L' -> 5))
-    ).map { f => f.id -> f }.toMap
-
-    val faces = testFaces
-    val faceWidth = 4
-
-    // NOTE: when traversing faces, the rotation of the other faces can change!
-    // So when moving up or down, the rotation of the face left or right turns the same amount wrt the next face
-    // left or right: similar for up or down
-    // TODO so when traversing, we need to know:
-    // - which face we are in now
-    // - how much this face is turned LR, UD wrt face 1 so we can adjust the orientation of the neighbours when needed
-
+    val faces = realFaces
+    val faceWidth = 50
     case class State(position: Point, face: Face, direction: Char, lastMove: String)
 
-    def normalizeDirection(direction: Char, face: Face): Char = {
-      //rotateRight(direction, face.orientation) // TODO should this be right? left? Or no rotation needed at all?
-      direction
-    }
-
     // The direction is assumed to be the direction wrt the points in the input. So 'L' means its entering from right and moving to left
-    // TODO depending on the rotation of the newFace wrt the old face, it might be that the orthogonal coordinate has to flip side as well
-    // CHECK: does it flip sides only after relative right rotation of new face is 2 or 3?
-    def selectEnteringPoint(orthogonalOffset: Int, newDirection: Char, newFace: Face, oldFace: Face): Point = {
-        val relOrientation = (newFace.orientation - oldFace.orientation + 4) % 4
-        val needsFlip = relOrientation == 2 || relOrientation == 3
+    def selectEnteringPoint(orthogonalOffset: Int, newDirection: Char, newFace: Face, oldDirection: Char): Point = {
+        val needsFlip = (oldDirection, newDirection) match {
+          case ('L', 'R')|('R', 'L')|('U', 'D')|('D','U') => true
+          case ('L','U')|('U','L')|('R','D')|('D','R') => true
+          case _ => false
+        }
         val flippedOffset = if needsFlip then (faceWidth - 1) - orthogonalOffset else orthogonalOffset
       // up, down: get y from face, adjust x for offset.
       // l,r: x from face, y adjusted
@@ -320,23 +296,15 @@ object Day22 {
 
           // determine new face
           // determine rotation + translation
-
-          // TODO when we go down/up, the rotations of faces left and right of us, relative to us, spin 1!
-          //      similarly for down/up when we move left/right
-
-          // translation + rotation: position.copy(x = finalX)
           // determine what new point becomes. Translation: because faces have offsets. Rotation: because you might start at another edge
           // And then recurse
           val orthogonalOffset = calcOrthogonalOffset(newPt, newFace, newDirection)
-          val directionInMap = normalizeDirection(direction, newFace) // TODO not needed
-          val neighbour = newFace.nbMap(directionInMap)
+          val (neighbour, relOrientation) = newFace.nbMap(direction)
           val myNeighbour = faces(neighbour)
           // rotate direction according to myNeighbour rotation
-          // TODO adjust rotation for nr of lr's ud's from top face
-          val directionInNeighbour = rotateLeft(directionInMap, myNeighbour.orientation)
+          val directionInNeighbour = rotateLeft(direction, relOrientation)
           // select appropriate edge of neighbour and translate position
-          // TODO pass in adjusted neigbour orientation
-          val pointInNeighbour = selectEnteringPoint(orthogonalOffset, directionInNeighbour, myNeighbour, newFace)
+          val pointInNeighbour = selectEnteringPoint(orthogonalOffset, directionInNeighbour, myNeighbour, direction)
           // check if blocked, if not: recurse
           if !pointsMap.contains(pointInNeighbour) then {
             println(pointInNeighbour)
@@ -378,9 +346,6 @@ object Day22 {
         case _ => sys.error("Wrong facing: " + direction)
       }
 
-    // TODO remove all blocking points
-    //pointsMap = pointsMap.map { case (pt, ch) => pt -> '.'}
-
     val finalStateRaw = directions.foldLeft(State(startPoint, faces(1), startDirection, "")) { case (state, turn) =>
       turn match {
         case 'L' =>
@@ -389,14 +354,14 @@ object Day22 {
             val distance = state.lastMove.toInt
             move(state.position, state.face, state.direction, distance)
           } else sys.error("No alternation")
-          state.copy(direction = turnLeft(newDir), face = newFace, position = ptAfterMove, lastMove = "") // TODO is turnLeft also turnleft on the bottom?
+          state.copy(direction = turnLeft(newDir), face = newFace, position = ptAfterMove, lastMove = "")
         case 'R' =>
           val (newDir, newFace, ptAfterMove) = if state.lastMove.nonEmpty then {
             // move in last direction
             val distance = state.lastMove.toInt
             move(state.position, state.face, state.direction, distance)
           } else sys.error("No alternation")
-          state.copy(direction = turnRight(newDir), face = newFace, position = ptAfterMove, lastMove = "") // TODO is turnRight also turnRight on the bottom?
+          state.copy(direction = turnRight(newDir), face = newFace, position = ptAfterMove, lastMove = "")
         case _ => state.copy(lastMove = state.lastMove :+ turn)
       }
     }
@@ -405,23 +370,10 @@ object Day22 {
       finalStateRaw.copy(position = newPos, face = newFace, direction = newDir, lastMove = "")
     }
 
-    // TODO make some test input files, to check the walks
-    // test 1 should end up on top of face 3
-    // face 3 is turned 2 to the right. So coordinate wise that means it starts at x = 0 and starts walking to right
-
     val State(finalPt, _, finalDir, _) = finalState
-    println(finalState)
+
     val solution = 1000L * (finalPt.y + 1) + 4 * (finalPt.x + 1) + facing(finalDir)
-    // TODO the direction for facing needs to be different! In the problem, 'up' means up in the z-coordinate if you imagine it's a real cube with face 1 on top
     // -> should be the facing in the map! So the one that was in the finalState already.
     solution
-  } // 101024 is false (too high), 44335 too low
-
-
-  // 12
-  // 4
-  //35
-  //6
-
-
+  } // 57305
 }

@@ -8,6 +8,14 @@ case class Point(x: Int, y: Int) {
   override def toString: String = s"($x,$y)"
 
   lazy val neighbours = Seq(left(this), right(this), up(this), down(this))
+
+  lazy val allNeighbours =
+    for {
+      px <- x - 1 to x + 1
+      py <- y - 1 to y + 1
+      if !(px == x && py == y)
+    } yield Point(px, py)
+      
 }
 
 object Point {
