@@ -52,7 +52,7 @@ object Day24 {
     }
   }
 
-  val blizzardPositions = (0 to 10000).scanLeft((0, blizzards)) { case ((_, bPositions), turn) =>
+  val blizzardPositions = (0 to 1000).scanLeft((0, blizzards)) { case ((_, bPositions), turn) =>
     turn -> bPositions.map(moveBlizzard)
   }.toMap.mapValues(_.map(_._2).toSet)
 
@@ -118,5 +118,5 @@ object Day24 {
     println ("Steps for 3: " + steps3)
 
     steps1 + steps2 + steps3 + 1
-  }   // 942
+  }   // 942, 117 seconds
 }
