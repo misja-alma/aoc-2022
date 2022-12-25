@@ -22,15 +22,15 @@ object Day25 {
 
   def toBase5(i: Long): String = {
     def toBase5Recurse(i: Long): String = {
-      if i ==0 then "" else toBase5Recurse(i/5) ++ (i%5).toString
+      if i == 0 then "" else toBase5Recurse(i / 5) ++ (i % 5).toString
     }
 
-    if i ==0 then "0"
+    if i == 0 then "0"
     else toBase5Recurse(i)
   }
 
   def toSnafu(i: Long): String = {
-    val (result, carry) = toBase5(i).reverse.foldLeft(("",0)){ case ((str, carry), c) =>
+    val (result, carry) = toBase5(i).reverse.foldLeft(("", 0)) { case ((str, carry), c) =>
       val digitToMake = carry + c.asDigit
       val snafuDigit = digitToMake % 5
       val (newStr, newCarry) = snafuDigit match {
@@ -41,7 +41,7 @@ object Day25 {
         case 4 => ('-' +: str, 1)
         case _ => sys.error("Can't handle: " + digitToMake)
       }
-      (newStr, newCarry + digitToMake/5)
+      (newStr, newCarry + digitToMake / 5)
     }
     val remainder = if carry > 0 then toSnafu(carry) else ""
     remainder ++ result.mkString

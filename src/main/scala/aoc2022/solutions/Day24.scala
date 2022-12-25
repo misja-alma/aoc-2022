@@ -54,7 +54,12 @@ object Day24 {
 
   val blizzardPositions = (0 to 1000).scanLeft((0, blizzards)) { case ((_, bPositions), turn) =>
     turn -> bPositions.map(moveBlizzard)
-  }.toMap.mapValues(_.map(_._2).toSet)
+  }.toMap
+    .view
+    .mapValues(_.map(_._2).toSet)
+    .view
+    .force // NOTE: view.mapValues doesn't calculate anything, it's super inefficient as a cache! So need to force it.
+    .toMap
 
   // We should have a list of blizzard positions for each move nr
   // Then just shortest path search:
@@ -96,7 +101,7 @@ object Day24 {
   def day24Part1 = printSolution {
      val solution = Search.findCheapestPath[State](Game(), startState, st => st.pos == endPt, StateOrdering())
      solution.get.total + 1
-  }
+  }  // 332, 0.5s
 
   @main
   def day24Part2 = printSolution {
@@ -118,5 +123,5 @@ object Day24 {
     println ("Steps for 3: " + steps3)
 
     steps1 + steps2 + steps3 + 1
-  }   // 942, 117 seconds
+  }   // 942, 1 second
 }

@@ -77,26 +77,20 @@ object Day23 {
     var round = 0
     var someMoving = true
     while someMoving do {
-//      println ("----------- Round: " + round +  " ------------------")
-//      val grid = Grid.fromPoints(state.toSeq)
-//      Grid.printBooleanGrid(grid)
-//      println
       round = round + 1
-      var someMovingNow = false
+      someMoving = false
       // 1st half
       val proposedMoves = state.toList.map(proposeMove(round, state))
       val proposalCount = proposedMoves.map(_._2).groupBy(identity)
       // 2nd half: for each elf/proposedMove: execute or not
       state = proposedMoves.map { case (oldElf, newElf) =>
         if proposalCount(newElf).size == 1 then {
-          if newElf != oldElf then someMovingNow = true
+          if newElf != oldElf then someMoving = true
           newElf
         } else oldElf
       }.toSet
-
-      someMoving = someMovingNow
     }
 
     round
-  }
+  } // 970
 }

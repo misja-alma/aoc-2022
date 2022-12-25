@@ -192,10 +192,13 @@ object Day22 {
     // orientation: nr of turns the face has to be turned right wrt face 1 to fit in the cube
     // nbMap: 1st is neighbour, 2nd is relative orientation of that neighbour
     case class Face(id: Int, orientation: Int, xOffset: Int, yOffset: Int, nbMap: Map[Char, (Int, Int)])
+
+    // Cube faces by nr:
     // 12
     // 4
     //35
     //6
+
     // NOTE: urdl are from the perspective of the face itself! So the direction in the map
     val realFaces = Seq(
       Face(1, 0, 50, 0, Map('U' -> (6,3), 'R' -> (2,0), 'D' -> (4,0), 'L' -> (3,2))),
@@ -324,10 +327,7 @@ object Day22 {
 
     def rotateLeft(direction: Char, turnsLeft: Int): Char =
       (0 until turnsLeft).foldLeft(direction) { case (lastDir, _) => turnLeft(lastDir) }
-
-    def rotateRight(direction: Char, turnsRight: Int): Char =
-      (0 until turnsRight).foldLeft(direction) { case (lastDir, _) => turnRight(lastDir) }
-
+    
     def turnLeft(direction: Char): Char =
       direction match {
         case 'R' => 'U'
