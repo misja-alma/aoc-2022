@@ -53,7 +53,7 @@ object Day24 {
   }
 
   val blizzardPositions = (0 to 1000).scanLeft((0, blizzards)) { case ((_, bPositions), turn) =>
-    turn -> bPositions.map(moveBlizzard)
+    (turn + 1) -> bPositions.map(moveBlizzard)
   }.toMap
     .view
     .mapValues(_.map(_._2).toSet)
@@ -87,7 +87,7 @@ object Day24 {
 
   class Game extends WeightedGraph[State, Int] {
     override def neighbours(vertex: State): Seq[State] = {
-      val blizzards = blizzardPositions(vertex.turn + 1) // CHECK: blizzards for next turn or current turn?
+      val blizzards = blizzardPositions(vertex.turn + 1)
       val possibleMoves = (vertex.pos +: vertex.pos.neighbours.filter(validMove)).filterNot(blizzards)
       val nonVisited = possibleMoves.map { pt => State(pt, vertex.turn + 1)}.filterNot(visited)
       visited.addAll(nonVisited)
@@ -100,7 +100,7 @@ object Day24 {
   @main
   def day24Part1 = printSolution {
      val solution = Search.findCheapestPath[State](Game(), startState, st => st.pos == endPt, StateOrdering())
-     solution.get.total + 1
+     solution.get.total
   }  // 332, 0.5s
 
   @main
@@ -122,6 +122,6 @@ object Day24 {
     val steps3 = solution3.get.total
     println ("Steps for 3: " + steps3)
 
-    steps1 + steps2 + steps3 + 1
+    steps1 + steps2 + steps3
   }   // 942, 1 second
 }
